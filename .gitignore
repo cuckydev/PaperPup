@@ -1,0 +1,7 @@
+# Exclude build directories
+build/
+bin/
+iso/
+
+# Exclude submodule libraries
+lib/
