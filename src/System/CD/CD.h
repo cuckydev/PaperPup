@@ -9,24 +9,30 @@
 
 #pragma once
 
-#include <memory>
 #include <iostream>
+#include <memory>
+#include <string>
 
 namespace System
 {
-	namespace SPU
+	namespace CD
 	{
-		//SPU class
-		class SPU
+		//CD file structure
+		struct File
+		{
+			std::shared_ptr<std::istream> stream;
+			std::string name;
+		};
+		
+		//CD class
+		class CD
 		{
 			public:
 				//Constructor and destructor
-				virtual ~SPU() {}
+				virtual ~CD() {}
 				
-				//XA interface
-				virtual bool XA_Play(std::shared_ptr<std::istream> stream) = 0;
-				virtual void XA_SetFilter(int file, int channel) = 0;
-				virtual void XA_Stop() = 0;
+				//CD interface
+				virtual File FindFile(std::string name) = 0;
 		};
 	}
 }

@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.8)
 
+###########
+# Options #
+###########
+
+option(LTO "Enable link-time optimization" OFF)
+option(MSVC_LINK_STATIC_RUNTIME "Link the static MSVC runtime library (Visual Studio only)" OFF)
+
 #########
 # Setup #
 #########
@@ -16,9 +23,14 @@ add_executable(PaperPup WIN32
 	# = System =
 	"src/System/System.cpp"
 	"src/System/System.h"
+	"src/System/CD/CD_Standard.cpp"
+	"src/System/CD/CD_Standard.h"
+	"src/System/CD/CD.h"
 	"src/System/SPU/SPU_miniaudio.cpp"
 	"src/System/SPU/SPU_miniaudio.h"
 	"src/System/SPU/SPU.h"
+	"src/System/SPU/ADPCM.cpp"
+	"src/System/SPU/ADPCM.h"
 	
 	# = Library =
 	"lib/miniaudio.h"
@@ -31,15 +43,29 @@ target_include_directories(PaperPup PRIVATE "lib")
 # Compiler flags #
 ##################
 
-# Strip release builds
-set(CMAKE_C_FLAGS_RELEASE     "${CMAKE_C_FLAGS_RELEASE} -s")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
-
-# Warnings
+# Force Warnings
 if(MSVC)
 	target_compile_options(PaperPup PRIVATE /W4 /WX)
 else()
 	target_compile_options(PaperPup PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+# Strip release builds
+set(CMAKE_C_FLAGS_RELEASE     "${CMAKE_C_FLAGS_RELEASE} -s")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
+
+# Statically link other libraries
+if(PKG_CONFIG_STATIC_LIBS)
+	target_link_options(SonicOnset PRIVATE "-static")
+endif()
+
+# Use LTO if requested
+if(LTO)
+	include(CheckIPOSupported)
+	check_ipo_supported(RESULT result)
+	if(result)
+		set_target_properties(SonicOnset PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+	endif()
 endif()
 
 ########

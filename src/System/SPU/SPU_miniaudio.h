@@ -24,10 +24,25 @@ namespace System
 		//SPU miniaudio class
 		class SPU_miniaudio : public SPU
 		{
+			private:
+				//Miniaudio state
+				ma_context miniaudio_context;
+				ma_device miniaudio_device;
+				ma_mutex miniaudio_mutex;
+				
+				//XA state
+				std::shared_ptr<std::istream> xa_stream = nullptr;
+				int xa_filter_file, xa_filter_channel;
+				
 			public:
 				//Constructor and destructor
 				SPU_miniaudio();
 				~SPU_miniaudio() override;
+				
+				//XA interface
+				bool XA_Play(std::shared_ptr<std::istream> stream) override;
+				void XA_SetFilter(int file, int channel) override;
+				void XA_Stop() override;
 		};
 	}
 }

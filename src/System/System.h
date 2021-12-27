@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "CD/CD.h"
 #include "SPU/SPU.h"
 
 namespace System
@@ -18,6 +19,7 @@ namespace System
 	{
 		private:
 			//System components
+			CD::CD *cd = nullptr;
 			SPU::SPU *spu = nullptr;
 			
 		public:
@@ -26,6 +28,7 @@ namespace System
 			~System();
 			
 			//Gets and sets
+			CD::CD *GetCD() { return cd; }
 			SPU::SPU *GetSPU() { return spu; }
 	};
 }

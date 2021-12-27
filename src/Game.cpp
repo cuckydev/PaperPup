@@ -9,6 +9,9 @@
 
 #include "Game.h"
 
+#include <thread>
+#include <chrono>
+
 namespace PaperPup
 {
 	//Game class
@@ -23,9 +26,13 @@ namespace PaperPup
 		
 	}
 	
-	//Interface
+	//Game interface
 	bool Game::Loop()
 	{
+		System::CD::File stream_file = system.GetCD()->FindFile("S1/STAGE1.XA1");
+		system.GetSPU()->XA_Play(stream_file.stream);
+		
+		std::this_thread::sleep_for(std::chrono::seconds(3));
 		return false;
 	}
 }

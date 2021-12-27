@@ -25,7 +25,7 @@ namespace PaperPup
 			Game();
 			~Game();
 			
-			//Interface
+			//Game interface
 			bool Loop();
 			
 			//Gets and sets
