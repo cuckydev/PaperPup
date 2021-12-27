@@ -11,6 +11,9 @@
 
 #include <memory>
 #include <iostream>
+#include <cstddef>
+
+#include "Mixer.h"
 
 namespace System
 {
@@ -19,14 +22,28 @@ namespace System
 		//SPU class
 		class SPU
 		{
+			protected:
+				//Mixer
+				Mixer mixer;
+				
+			private:
+				//XA state
+				std::shared_ptr<std::istream> xa_stream;
+				int xa_filter_file, xa_filter_channel;
+				
 			public:
 				//Constructor and destructor
 				virtual ~SPU() {}
 				
 				//XA interface
-				virtual bool XA_Play(std::shared_ptr<std::istream> stream) = 0;
-				virtual void XA_SetFilter(int file, int channel) = 0;
-				virtual void XA_Stop() = 0;
+				bool XA_Play(std::shared_ptr<std::istream> stream);
+				void XA_SetFilter(int file, int channel);
+				void XA_Stop();
+				
+			private:
+				//Mutex interface
+				virtual void Mutex_Lock() = 0;
+				virtual void Mutex_Unlock() = 0;
 		};
 	}
 }

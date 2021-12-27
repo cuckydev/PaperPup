@@ -21,7 +21,7 @@ namespace System
 			
 			//ADPCM decoder class
 			//Decode interface
-			void Decoder::DecodeBlock(uint8_t header, const uint8_t (&block)[14], int16_t (&decode)[28]) //SPU ADPCM
+			void Decoder::DecodeBlock(uint8_t header, const uint8_t *block, int16_t *decode) //SPU ADPCM
 			{
 				//Read header
 				int shift = 12 - (header & 0x0F);
@@ -49,7 +49,7 @@ namespace System
 				}
 			}
 			
-			void Decoder::DecodeSector4(uint8_t header, const uint8_t (&block)[112], int block_i, int16_t (&decode)[28]) //XA ADPCM 4-bit
+			void Decoder::DecodeSector4(uint8_t header, const uint8_t *block, int block_i, int16_t *decode) //XA ADPCM 4-bit
 			{
 				//Read header
 				int shift = 12 - (header & 0x0F);
@@ -81,7 +81,7 @@ namespace System
 				}
 			}
 			
-			void Decoder::DecodeSector8(uint8_t header, const uint8_t (&block)[112], int block_i, int16_t (&decode)[28]) //XA ADPCM 8-bit
+			void Decoder::DecodeSector8(uint8_t header, const uint8_t *block, int block_i, int16_t *decode) //XA ADPCM 8-bit
 			{
 				//Read header
 				int shift = 8 - (header & 0x0F);

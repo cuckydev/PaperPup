@@ -27,22 +27,21 @@ namespace System
 			private:
 				//Miniaudio state
 				ma_context miniaudio_context;
-				ma_device miniaudio_device;
 				ma_mutex miniaudio_mutex;
-				
-				//XA state
-				std::shared_ptr<std::istream> xa_stream = nullptr;
-				int xa_filter_file, xa_filter_channel;
+				ma_device miniaudio_device;
 				
 			public:
 				//Constructor and destructor
 				SPU_miniaudio();
 				~SPU_miniaudio() override;
 				
-				//XA interface
-				bool XA_Play(std::shared_ptr<std::istream> stream) override;
-				void XA_SetFilter(int file, int channel) override;
-				void XA_Stop() override;
+				//Miniaudio data callback
+				void DataCallback(ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do);
+				
+			private:
+				//Mutex interface
+				void Mutex_Lock() override;
+				void Mutex_Unlock() override;
 		};
 	}
 }

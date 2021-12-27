@@ -22,49 +22,63 @@ namespace System
 		{
 			//Initialize miniaudio context
 			if (ma_context_init(NULL, 0, NULL, &miniaudio_context) != MA_SUCCESS)
-				throw "[System::Spu::SPU_miniaudio::SPU_miniaudio] Failed to initialize miniaudio context";
+				throw "[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to initialize miniaudio context";
 			
 			//Create miniaudio device
 			ma_device_config config = ma_device_config_init(ma_device_type_playback);
 			config.playback.pDeviceID = NULL;
-			config.playback.format = ma_format_unknown; //Use native format
-			config.playback.channels = 0;               //Use native channel count
-			config.sampleRate = 0;                      //Use native sample rate
-			config.noPreSilencedOutputBuffer = MA_TRUE; //We will clear this buffer ourselves if needed
-			config.dataCallback = NULL;
-			config.pUserData = NULL;
+			config.playback.format = ma_format_s16;
+			config.playback.channels = 2;
+			config.sampleRate = 0;
+			config.noPreSilencedOutputBuffer = MA_FALSE;
+			config.performanceProfile = ma_performance_profile_low_latency;
+			config.dataCallback = [](ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do)
+			{ ((SPU_miniaudio*)device->pUserData)->DataCallback(device, output_buffer_void, input_buffer, frames_to_do); };
+			config.pUserData = (void*)this;
 			
 			if (ma_device_init(&miniaudio_context, &config, &miniaudio_device) != MA_SUCCESS)
-				throw "[System::Spu::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio device";
+				throw "[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio device";
+			
+			//Setup mixer
+			mixer.SetOutputFrequency(miniaudio_device.sampleRate);
+			
+			//Create miniaudio mutex and start device
+			if (ma_mutex_init(&miniaudio_mutex) != MA_SUCCESS)
+				throw "[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio mutex";
+			
+			ma_device_start(&miniaudio_device);
 		}
 		
 		SPU_miniaudio::~SPU_miniaudio()
 		{
+			//Deinitialize miniaudio
+			ma_device_stop(&miniaudio_device);
 			
+			ma_device_uninit(&miniaudio_device);
+			ma_mutex_uninit(&miniaudio_mutex);
+			ma_context_uninit(&miniaudio_context);
 		}
 		
-		//XA interface
-		bool SPU_miniaudio::XA_Play(std::shared_ptr<std::istream> stream)
+		//Miniaudio data callback
+		void SPU_miniaudio::DataCallback(ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do)
 		{
-			//Initialize XA state
-			xa_stream = stream;
-			xa_filter_file = xa_filter_channel = 0;
-			
-			//Start playing
-			
-			return false;
+			//Run SPU mixer
+			(void)device;
+			(void)input_buffer;
+			mixer.Mix((int16_t*)output_buffer_void, frames_to_do);
 		}
 		
-		void SPU_miniaudio::XA_SetFilter(int file, int channel)
+		//Mutex interface
+		void SPU_miniaudio::Mutex_Lock()
 		{
-			//Use given file and channel
-			xa_filter_file = file;
-			xa_filter_channel = channel;
+			//Lock mutex
+			ma_mutex_lock(&miniaudio_mutex);
 		}
 		
-		void SPU_miniaudio::XA_Stop()
+		void SPU_miniaudio::Mutex_Unlock()
 		{
-			//Stop playing XA
+			//Unlock mutex
+			ma_mutex_unlock(&miniaudio_mutex);
 		}
 	}
 }

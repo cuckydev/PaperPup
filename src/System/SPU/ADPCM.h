@@ -28,9 +28,9 @@ namespace System
 					//Decode interface
 					void Reset() { old = 0; older = 0; }
 					
-					void DecodeBlock(uint8_t header, const uint8_t (&block)[14], int16_t (&decode)[28]); //SPU ADPCM
-					void DecodeSector4(uint8_t header, const uint8_t (&block)[112], int block_i, int16_t (&decode)[28]); //XA ADPCM 4-bit
-					void DecodeSector8(uint8_t header, const uint8_t (&block)[112], int block_i, int16_t (&decode)[28]); //XA ADPCM 8-bit
+					void DecodeBlock(uint8_t header, const uint8_t *block, int16_t *decode); //SPU ADPCM
+					void DecodeSector4(uint8_t header, const uint8_t *block, int block_i, int16_t *decode); //XA ADPCM 4-bit
+					void DecodeSector8(uint8_t header, const uint8_t *block, int block_i, int16_t *decode); //XA ADPCM 8-bit
 			};
 		}
 	}

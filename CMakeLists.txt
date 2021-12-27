@@ -23,14 +23,17 @@ add_executable(PaperPup WIN32
 	# = System =
 	"src/System/System.cpp"
 	"src/System/System.h"
+	"src/System/CD/CD.h"
 	"src/System/CD/CD_Standard.cpp"
 	"src/System/CD/CD_Standard.h"
-	"src/System/CD/CD.h"
-	"src/System/SPU/SPU_miniaudio.cpp"
-	"src/System/SPU/SPU_miniaudio.h"
+	"src/System/SPU/SPU.cpp"
 	"src/System/SPU/SPU.h"
+	"src/System/SPU/Mixer.cpp"
+	"src/System/SPU/Mixer.h"
 	"src/System/SPU/ADPCM.cpp"
 	"src/System/SPU/ADPCM.h"
+	"src/System/SPU/SPU_miniaudio.cpp"
+	"src/System/SPU/SPU_miniaudio.h"
 	
 	# = Library =
 	"lib/miniaudio.h"
