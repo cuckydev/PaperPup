@@ -22,7 +22,7 @@ namespace System
 			{
 				private:
 					//Decode state
-					int16_t old = 0, older = 0;
+					int old = 0, older = 0;
 					
 				public:
 					//Decode interface

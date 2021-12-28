@@ -62,10 +62,13 @@ namespace System
 		//Miniaudio data callback
 		void SPU_miniaudio::DataCallback(ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do)
 		{
-			//Run SPU mixer
 			(void)device;
 			(void)input_buffer;
+			
+			//Run SPU mixer
+			ma_mutex_lock(&miniaudio_mutex);
 			mixer.Mix((int16_t*)output_buffer_void, frames_to_do);
+			ma_mutex_unlock(&miniaudio_mutex);
 		}
 		
 		//Mutex interface

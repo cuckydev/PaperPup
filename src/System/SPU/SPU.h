@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <memory>
 #include <iostream>
 #include <cstddef>
 
@@ -24,21 +23,34 @@ namespace System
 		{
 			protected:
 				//Mixer
-				Mixer mixer;
-				
-			private:
-				//XA state
-				std::shared_ptr<std::istream> xa_stream;
-				int xa_filter_file, xa_filter_channel;
+				Mixer::Mixer mixer;
 				
 			public:
 				//Constructor and destructor
 				virtual ~SPU() {}
 				
 				//XA interface
-				bool XA_Play(std::shared_ptr<std::istream> stream);
-				void XA_SetFilter(int file, int channel);
-				void XA_Stop();
+				void XA_Play(std::istream *stream)
+				{
+					//Lock stream and call mixer XA play
+					Mutex_Lock();
+					mixer.XA_Play(stream);
+					Mutex_Unlock();
+				}
+				void XA_SetFilter(uint8_t file, uint8_t channel)
+				{
+					//Lock stream and call mixer XA set filter
+					Mutex_Lock();
+					mixer.XA_SetFilter(file, channel);
+					Mutex_Unlock();
+				}
+				void XA_Stop()
+				{
+					//Lock stream and call mixer XA stop
+					Mutex_Lock();
+					mixer.XA_Stop();
+					Mutex_Unlock();
+				}
 				
 			private:
 				//Mutex interface

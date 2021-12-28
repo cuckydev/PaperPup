@@ -9,6 +9,8 @@
 
 #include "ADPCM.h"
 
+#include <iostream>
+
 namespace System
 {
 	namespace SPU
@@ -35,6 +37,8 @@ namespace System
 				{
 					//Decode sample
 					int t = (block[i >> 1] >> ((i & 1) << 2)) & 0xF;
+					if (t & 0x8)
+						t = -16 + t;
 					
 					int s = (t << shift) + ((old * f0 + older * f1 + 32) / 64);
 					if (s < -0x7FFF)
@@ -59,13 +63,15 @@ namespace System
 				int f1 = filter_neg[filter];
 				
 				//Decode nibbles
-				const uint8_t *blockp = block + ((block_i >> 1) ^ 0x3);
+				const uint8_t *blockp = block + (block_i >> 1);
 				int t_shift = (block_i & 1) << 2;
 				
 				for (int i = 0; i < 28; i++)
 				{
 					//Decode sample
 					int t = (*blockp >> t_shift) & 0xF;
+					if (t & 0x8)
+						t = -0x10 + t;
 					blockp += 4;
 					
 					int s = (t << shift) + ((old * f0 + older * f1 + 32) / 64);
@@ -91,12 +97,14 @@ namespace System
 				int f1 = filter_neg[filter];
 				
 				//Decode nibbles
-				const uint8_t *blockp = block + (block_i ^ 0x3);
+				const uint8_t *blockp = block + block_i;
 				
 				for (int i = 0; i < 28; i++)
 				{
 					//Decode sample
 					int t = *blockp;
+					if (t & 0x80)
+						t = -0x100 + t;
 					blockp += 4;
 					
 					int s = (t << shift) + ((old * f0 + older * f1 + 32) / 64);

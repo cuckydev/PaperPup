@@ -26,7 +26,6 @@ add_executable(PaperPup WIN32
 	"src/System/CD/CD.h"
 	"src/System/CD/CD_Standard.cpp"
 	"src/System/CD/CD_Standard.h"
-	"src/System/SPU/SPU.cpp"
 	"src/System/SPU/SPU.h"
 	"src/System/SPU/Mixer.cpp"
 	"src/System/SPU/Mixer.h"

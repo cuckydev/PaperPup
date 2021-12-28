@@ -30,8 +30,9 @@ namespace System
 		//CD interface
 		File CD_Standard::FindFile(std::string name)
 		{
+			std::shared_ptr<std::ifstream> stream = std::make_shared<std::ifstream>("iso/" + name, std::ifstream::binary);
 			return {
-				std::make_shared<std::ifstream>("iso/" + name, std::ifstream::binary),
+				stream->is_open() ? stream : nullptr,
 				name
 			};
 		}

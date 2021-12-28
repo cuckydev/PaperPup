@@ -29,8 +29,11 @@ namespace PaperPup
 	//Game interface
 	bool Game::Loop()
 	{
-		System::CD::File stream_file = system.GetCD()->FindFile("S1/STAGE1.XA1");
-		system.GetSPU()->XA_Play(stream_file.stream);
+		System::CD::File stream_file = system.GetCD()->FindFile("S2/STAGE2.XA1");
+		if (stream_file.stream != nullptr)
+			system.GetSPU()->XA_Play(stream_file.stream.get());
+		else
+			std::cout << "fail" << std::endl;
 		
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 		return false;
