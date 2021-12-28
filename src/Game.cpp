@@ -31,11 +31,15 @@ namespace PaperPup
 	{
 		System::CD::File stream_file = system.GetCD()->FindFile("S2/STAGE2.XA1");
 		if (stream_file.stream != nullptr)
-			system.GetSPU()->XA_Play(stream_file.stream.get());
+			system.GetSPU()->XA_Load(stream_file.stream.get());
 		else
-			std::cout << "fail" << std::endl;
+			throw "Failed to open test XA";
 		
-		std::this_thread::sleep_for(std::chrono::seconds(3));
+		system.GetSPU()->XA_SetFilter(1, 1);
+		system.GetSPU()->XA_Play();
+		
+		std::this_thread::sleep_for(std::chrono::seconds(30));
+		
 		return false;
 	}
 }

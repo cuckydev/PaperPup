@@ -18,9 +18,64 @@ namespace System
 		namespace Mixer
 		{
 			//Mixer resampler class
-			void Resampler::Resample(int16_t *output, size_t frames, std::function<void(int16_t*, size_t)> input)
+			size_t Resampler::Resample(int16_t *output, size_t samples, std::function<void(int16_t*, size_t)> input)
 			{
+				//Don't resample if bad state
+				if (samples == 0 || resample_inc == 0)
+					return 0;
 				
+				//Get next position
+				uint32_t resample_next = resample_sub + resample_inc * samples;
+				
+				//Read input samples
+				size_t input_samples = resample_next >> 16;
+				int16_t *input_buffer = new int16_t[input_samples];
+				int16_t *inputp = input_buffer;
+				
+				input(input_buffer, input_samples);
+				
+				//Write output samples
+				int16_t *outputp = output;
+				
+				for (size_t i = 0; i < samples; i++)
+				{
+					*outputp++ = (int16_t)((int32_t)resample_from + ((((int32_t)resample_to - (int32_t)resample_from) * resample_sub) >> 16));
+					resample_sub += resample_inc;
+					if (resample_sub & ~0xFFFF)
+					{
+						resample_from = *inputp;
+						inputp += resample_sub >> 16;
+						resample_to = *inputp;
+						resample_sub &= 0xFFFF;
+					}
+				}
+				
+				delete[] input_buffer;
+				return input_samples;
+				
+				/*
+				//Read input samples
+				size_t input_samples = (resample_next + 0xFFFF) >> 16;
+				
+				int16_t *input_buffer = new int16_t[input_samples];
+				input(input_buffer, input_samples);
+				
+				//Write output samples
+				int16_t *outputp = output;
+				for (size_t i = 0; i < samples; i++)
+				{
+					int16_t from = (resample_sub & ~0xFFFF) ? input_buffer[resample_sub >> 16] : resample_last;
+					int16_t to = input_buffer[(resample_sub >> 16) + 1];
+					*outputp++ = (from + (((int32_t)(to - from) * (resample_sub & 0xFFFF)) >> 16));
+					resample_sub += resample_inc;
+				}
+				
+				resample_last = input_buffer[resample_next >> 16];
+				resample_sub &= 0xFFFF;
+				
+				delete[] input_buffer;
+				return input_samples;
+				*/
 			}
 			
 			//Mixer class
@@ -37,11 +92,36 @@ namespace System
 			
 			void Mixer::Mix(int16_t *output, size_t frames)
 			{
-				
+				//Write XA data
+				if (xa_playing)
+				{
+					//Play current filtered channel
+					auto find_channel = xa_channels.find(xa_filter);
+					if (find_channel != xa_channels.end())
+					{
+						//Mix 
+						int16_t *fuck = new int16_t[frames];
+						xa_resampler[0].Resample(fuck, frames, [&](int16_t *input_buffer, size_t input_samples)
+						{
+							for (size_t i = 0; i < input_samples; i++)
+							{
+								*input_buffer++ = find_channel->second.channel_pcm[xa_pos];
+								xa_pos += 2;
+							}
+						});
+						
+						for (size_t i = 0; i < frames; i++)
+						{
+							*output++ = fuck[i];
+							*output++ = fuck[i];
+						}
+						delete[] fuck;
+					}
+				}
 			}
 			
 			//XA interface
-			void Mixer::XA_Play(std::istream *stream)
+			void Mixer::XA_Load(std::istream *stream)
 			{
 				//Stop playing if bad stream
 				if (stream == nullptr || stream->good() == false)
@@ -93,21 +173,57 @@ namespace System
 						{
 							if ((xa_channel->channel_coding & XA::Coding::Channels) == XA::Coding::Channels_Mono)
 							{
+								//Decode block by block
 								const uint8_t *datap = (const uint8_t*)(sector + 8);
 								for (int s = 0; s < 18; s++)
 								{
+									//Decode ADPCM
+									int16_t decode[8 * 28];
+									int16_t *decodep = decode;
 									for (int i = 0; i < 8; i++)
 									{
-										int16_t decode[28];
-										xa_channel->channel_decoder[0].DecodeSector4(datap[4 + i], &datap[16], i, decode);
-										xa_channel->channel_pcm.insert(xa_channel->channel_pcm.end(), &decode[0], &decode[28]);
+										xa_channel->channel_decoder[0].DecodeSector4(datap[4 + i], &datap[16], i, decodep);
+										decodep += 28;
 									}
 									datap += 128;
+									
+									//Write to PCM
+									for (auto &i : decode)
+									{
+										xa_channel->channel_pcm.push_back(i);
+										xa_channel->channel_pcm.push_back(i);
+									}
 								}
 							}
 							else
 							{
-								throw "Stereo XA unsupported";
+								//Decode block by block
+								const uint8_t *datap = (const uint8_t*)(sector + 8);
+								for (int s = 0; s < 18; s++)
+								{
+									//Decode ADPCM
+									int16_t decode[8 * 28];
+									int16_t *decodel = decode;
+									int16_t *decoder = decode + (4 * 28);
+									
+									for (int i = 0; i < 8; i += 2)
+									{
+										xa_channel->channel_decoder[0].DecodeSector4(datap[4 + i], &datap[16], i, decodel);
+										xa_channel->channel_decoder[1].DecodeSector4(datap[5 + i], &datap[16], i | 1, decoder);
+										decodel += 28;
+										decoder += 28;
+									}
+									datap += 128;
+									
+									//Write to PCM
+									decodel = decode;
+									decoder = decode + (4 * 28);
+									for (int i = 0; i < (4 * 28); i++)
+									{
+										xa_channel->channel_pcm.push_back(*decodel++);
+										xa_channel->channel_pcm.push_back(*decoder++);
+									}
+								}
 							}
 						}
 						else
@@ -117,11 +233,18 @@ namespace System
 					}
 				}
 				
-				std::ofstream FUCKYOU("test.raw", std::ofstream::binary);
-				FUCKYOU.write((char*)xa_channels[0x0101].channel_pcm.data(), xa_channels[0x0101].channel_pcm.size() * 2);
-				
 				//Set XA state
+				xa_playing = false;
+				xa_pos = 0;
 				XA_SetFilter(init_file, init_channel);
+			}
+			
+			void Mixer::XA_Play()
+			{
+				//Set XA state
+				xa_playing = true;
+				xa_resampler[0].Reset();
+				xa_resampler[1].Reset();
 			}
 			
 			void Mixer::XA_SetFilter(uint8_t file, uint8_t channel)

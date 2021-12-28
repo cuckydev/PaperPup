@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.8)
 
 option(LTO "Enable link-time optimization" OFF)
 option(MSVC_LINK_STATIC_RUNTIME "Link the static MSVC runtime library (Visual Studio only)" OFF)
+option(PKG_CONFIG_STATIC_LIBS "Link libraries statically" OFF)
 
 #########
 # Setup #
@@ -58,7 +59,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
 # Statically link other libraries
 if(PKG_CONFIG_STATIC_LIBS)
-	target_link_options(SonicOnset PRIVATE "-static")
+	target_link_options(PaperPup PRIVATE "-static")
 endif()
 
 # Use LTO if requested
@@ -66,7 +67,7 @@ if(LTO)
 	include(CheckIPOSupported)
 	check_ipo_supported(RESULT result)
 	if(result)
-		set_target_properties(SonicOnset PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+		set_target_properties(PaperPup PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 	endif()
 endif()
 

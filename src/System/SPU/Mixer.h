@@ -58,7 +58,7 @@ namespace System
 			{
 				private:
 					//Resampler state
-					int16_t resample_last = 0;
+					int16_t resample_from = 0, resample_to = 0;
 					uint32_t resample_frequency = 0;
 					uint32_t resample_sub = 0, resample_inc = 0;
 					
@@ -67,8 +67,8 @@ namespace System
 					void SetResampleFrequency(uint32_t output_frequency, uint32_t channel_frequency) { resample_frequency = channel_frequency; resample_inc = ((uint64_t)channel_frequency << 16) / output_frequency; }
 					uint32_t GetResampleFrequency() { return resample_frequency; }
 					
-					void Reset() { resample_last = 0; resample_sub = 0; }
-					void Resample(int16_t *output, size_t frames, std::function<void(int16_t*, size_t)> input);
+					void Reset() { resample_from = resample_to = resample_sub = 0; }
+					size_t Resample(int16_t *output, size_t samples, std::function<void(int16_t*, size_t)> input);
 			};
 			
 			//Mixer class
@@ -84,6 +84,8 @@ namespace System
 					uint16_t xa_filter = 0x0000;
 					std::unordered_map<uint16_t, XA::Channel> xa_channels;
 					
+					size_t xa_pos = 0;
+					
 					Resampler xa_resampler[2];
 					
 				public:
@@ -94,7 +96,9 @@ namespace System
 					void Mix(int16_t *output, size_t frames);
 					
 					//XA interface
-					void XA_Play(std::istream *stream);
+					void XA_Load(std::istream *stream);
+					
+					void XA_Play();
 					void XA_SetFilter(uint8_t file, uint8_t channel);
 					void XA_Stop();
 			};
