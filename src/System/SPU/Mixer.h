@@ -53,22 +53,13 @@ namespace System
 				};
 			}
 			
-			//Mixer resampler class
-			class Resampler
+			//Mixer frequency helper
+			struct PosInc
 			{
-				private:
-					//Resampler state
-					int16_t resample_from = 0, resample_to = 0;
-					uint32_t resample_frequency = 0;
-					uint32_t resample_sub = 0, resample_inc = 0;
-					
-				public:
-					//Resampler interface
-					void SetResampleFrequency(uint32_t output_frequency, uint32_t channel_frequency) { resample_frequency = channel_frequency; resample_inc = ((uint64_t)channel_frequency << 16) / output_frequency; }
-					uint32_t GetResampleFrequency() { return resample_frequency; }
-					
-					void Reset() { resample_from = resample_to = resample_sub = 0; }
-					size_t Resample(int16_t *output, size_t samples, std::function<void(int16_t*, size_t)> input);
+				uint32_t frequency = 0;
+				uint64_t pos = 0, inc = 0;
+				
+				void SetFrequency(uint32_t output_frequency, uint32_t inc_frequency) { frequency = inc_frequency; inc = ((uint64_t)frequency << 16) / output_frequency; }
 			};
 			
 			//Mixer class
@@ -82,11 +73,8 @@ namespace System
 					bool xa_playing = false;
 					
 					uint16_t xa_filter = 0x0000;
+					PosInc xa_posinc;
 					std::unordered_map<uint16_t, XA::Channel> xa_channels;
-					
-					size_t xa_pos = 0;
-					
-					Resampler xa_resampler[2];
 					
 				public:
 					//Mixer interface

@@ -17,67 +17,6 @@ namespace System
 	{
 		namespace Mixer
 		{
-			//Mixer resampler class
-			size_t Resampler::Resample(int16_t *output, size_t samples, std::function<void(int16_t*, size_t)> input)
-			{
-				//Don't resample if bad state
-				if (samples == 0 || resample_inc == 0)
-					return 0;
-				
-				//Get next position
-				uint32_t resample_next = resample_sub + resample_inc * samples;
-				
-				//Read input samples
-				size_t input_samples = resample_next >> 16;
-				int16_t *input_buffer = new int16_t[input_samples];
-				int16_t *inputp = input_buffer;
-				
-				input(input_buffer, input_samples);
-				
-				//Write output samples
-				int16_t *outputp = output;
-				
-				for (size_t i = 0; i < samples; i++)
-				{
-					*outputp++ = (int16_t)((int32_t)resample_from + ((((int32_t)resample_to - (int32_t)resample_from) * resample_sub) >> 16));
-					resample_sub += resample_inc;
-					if (resample_sub & ~0xFFFF)
-					{
-						resample_from = *inputp;
-						inputp += resample_sub >> 16;
-						resample_to = *inputp;
-						resample_sub &= 0xFFFF;
-					}
-				}
-				
-				delete[] input_buffer;
-				return input_samples;
-				
-				/*
-				//Read input samples
-				size_t input_samples = (resample_next + 0xFFFF) >> 16;
-				
-				int16_t *input_buffer = new int16_t[input_samples];
-				input(input_buffer, input_samples);
-				
-				//Write output samples
-				int16_t *outputp = output;
-				for (size_t i = 0; i < samples; i++)
-				{
-					int16_t from = (resample_sub & ~0xFFFF) ? input_buffer[resample_sub >> 16] : resample_last;
-					int16_t to = input_buffer[(resample_sub >> 16) + 1];
-					*outputp++ = (from + (((int32_t)(to - from) * (resample_sub & 0xFFFF)) >> 16));
-					resample_sub += resample_inc;
-				}
-				
-				resample_last = input_buffer[resample_next >> 16];
-				resample_sub &= 0xFFFF;
-				
-				delete[] input_buffer;
-				return input_samples;
-				*/
-			}
-			
 			//Mixer class
 			//Mixer interface
 			void Mixer::SetOutputFrequency(uint32_t frequency)
@@ -85,13 +24,18 @@ namespace System
 				//Update output frequency
 				output_frequency = frequency;
 				
-				//Update resamplers
-				xa_resampler[0].SetResampleFrequency(output_frequency, xa_resampler[0].GetResampleFrequency());
-				xa_resampler[1].SetResampleFrequency(output_frequency, xa_resampler[1].GetResampleFrequency());
+				//Update increments
+				xa_posinc.SetFrequency(output_frequency, xa_posinc.frequency);
 			}
 			
 			void Mixer::Mix(int16_t *output, size_t frames)
 			{
+				//Allocate buffers
+				int16_t *outputp;
+				
+				int32_t *buffer = new int32_t[frames << 1]{};
+				int32_t *bufferp;
+				
 				//Write XA data
 				if (xa_playing)
 				{
@@ -99,25 +43,54 @@ namespace System
 					auto find_channel = xa_channels.find(xa_filter);
 					if (find_channel != xa_channels.end())
 					{
-						//Mix 
-						int16_t *fuck = new int16_t[frames];
-						xa_resampler[0].Resample(fuck, frames, [&](int16_t *input_buffer, size_t input_samples)
+						//Get number of frames
+						size_t channel_frames = find_channel->second.channel_pcm.size() >> 1;
+						if (channel_frames > 0)
 						{
-							for (size_t i = 0; i < input_samples; i++)
+							//Get number of frames left to render
+							size_t frames_left = ((channel_frames << 16) - xa_posinc.pos) / xa_posinc.inc;
+							if (frames_left > frames)
+								frames_left = frames;
+							
+							//Mix XA
+							bufferp = buffer;
+							for (size_t i = 0; i < frames_left; i++)
 							{
-								*input_buffer++ = find_channel->second.channel_pcm[xa_pos];
-								xa_pos += 2;
+								*bufferp++ = find_channel->second.channel_pcm[(xa_posinc.pos >> 15) & ~1];
+								*bufferp++ = find_channel->second.channel_pcm[(xa_posinc.pos >> 15) | 1];
+								xa_posinc.pos += xa_posinc.inc;
 							}
-						});
-						
-						for (size_t i = 0; i < frames; i++)
-						{
-							*output++ = fuck[i];
-							*output++ = fuck[i];
 						}
-						delete[] fuck;
 					}
 				}
+				
+				//Clip to 16-bit output
+				outputp = output;
+				bufferp = buffer;
+				
+				for (size_t i = 0; i < frames; i++)
+				{
+					//Write left sample
+					if (*bufferp < -0x7FFF)
+						*outputp++ = -0x7FFF;
+					else if (*bufferp > 0x7FFF)
+						*outputp++ = 0x7FFF;
+					else
+						*outputp++ = *bufferp;
+					bufferp++;
+					
+					//Write right sample
+					if (*bufferp < -0x7FFF)
+						*outputp++ = -0x7FFF;
+					else if (*bufferp > 0x7FFF)
+						*outputp++ = 0x7FFF;
+					else
+						*outputp++ = *bufferp;
+					bufferp++;
+				}
+				
+				//Delete buffers
+				delete[] buffer;
 			}
 			
 			//XA interface
@@ -235,7 +208,7 @@ namespace System
 				
 				//Set XA state
 				xa_playing = false;
-				xa_pos = 0;
+				xa_posinc.pos = xa_posinc.inc = 0;
 				XA_SetFilter(init_file, init_channel);
 			}
 			
@@ -243,8 +216,6 @@ namespace System
 			{
 				//Set XA state
 				xa_playing = true;
-				xa_resampler[0].Reset();
-				xa_resampler[1].Reset();
 			}
 			
 			void Mixer::XA_SetFilter(uint8_t file, uint8_t channel)
@@ -258,8 +229,7 @@ namespace System
 				{
 					//Set resample frequency
 					uint32_t channel_frequency = ((uint8_t)find_channel->second.channel_coding & XA::Coding::SampleRate) == XA::Coding::SampleRate_2 ? 37800 : 18900;
-					xa_resampler[0].SetResampleFrequency(output_frequency, channel_frequency);
-					xa_resampler[1].SetResampleFrequency(output_frequency, channel_frequency);
+					xa_posinc.SetFrequency(output_frequency, channel_frequency);
 				}
 			}
 			

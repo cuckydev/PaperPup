@@ -30,7 +30,7 @@ namespace System
 			config.playback.format = ma_format_s16;
 			config.playback.channels = 2;
 			config.sampleRate = 0;
-			config.noPreSilencedOutputBuffer = MA_FALSE;
+			config.noPreSilencedOutputBuffer = MA_TRUE;
 			config.performanceProfile = ma_performance_profile_low_latency;
 			config.dataCallback = [](ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do)
 			{ ((SPU_miniaudio*)device->pUserData)->DataCallback(device, output_buffer_void, input_buffer, frames_to_do); };
