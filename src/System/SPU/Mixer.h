@@ -9,15 +9,16 @@
 
 #pragma once
 
-#include <functional>
 #include <iostream>
 #include <utility>
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
 #include <cstddef>
+#include <cstring>
 
 #include "ADPCM.h"
+#include "Resampler.h"
 
 namespace System
 {
@@ -53,15 +54,6 @@ namespace System
 				};
 			}
 			
-			//Mixer frequency helper
-			struct PosInc
-			{
-				uint32_t frequency = 0;
-				uint64_t pos = 0, inc = 0;
-				
-				void SetFrequency(uint32_t output_frequency, uint32_t inc_frequency) { frequency = inc_frequency; inc = ((uint64_t)frequency << 16) / output_frequency; }
-			};
-			
 			//Mixer class
 			class Mixer
 			{
@@ -73,8 +65,11 @@ namespace System
 					bool xa_playing = false;
 					
 					uint16_t xa_filter = 0x0000;
-					PosInc xa_posinc;
+					
 					std::unordered_map<uint16_t, XA::Channel> xa_channels;
+					size_t xa_pos = 0;
+					
+					Resampler::Resampler<2> xa_resampler;
 					
 				public:
 					//Mixer interface

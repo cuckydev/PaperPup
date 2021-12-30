@@ -24,8 +24,8 @@ namespace System
 				//Update output frequency
 				output_frequency = frequency;
 				
-				//Update increments
-				xa_posinc.SetFrequency(output_frequency, xa_posinc.frequency);
+				//Update resamplers
+				xa_resampler.SetResampleFrequency(output_frequency, xa_resampler.GetResampleFrequency());
 			}
 			
 			void Mixer::Mix(int16_t *output, size_t frames)
@@ -43,24 +43,33 @@ namespace System
 					auto find_channel = xa_channels.find(xa_filter);
 					if (find_channel != xa_channels.end())
 					{
-						//Get number of frames
-						size_t channel_frames = find_channel->second.channel_pcm.size() >> 1;
-						if (channel_frames > 0)
+						//Resample XA
+						xa_resampler.Resample(buffer, frames, [&](int16_t *input, size_t frames)
 						{
-							//Get number of frames left to render
-							size_t frames_left = ((channel_frames << 16) - xa_posinc.pos) / xa_posinc.inc;
-							if (frames_left > frames)
-								frames_left = frames;
+							//Get number of frames to copy
+							size_t samples = frames << 1;
 							
-							//Mix XA
-							bufferp = buffer;
-							for (size_t i = 0; i < frames_left; i++)
+							size_t sample_pos = xa_pos << 1;
+							size_t pcm_size = find_channel->second.channel_pcm.size();
+							
+							size_t samples_left;
+							if (sample_pos < pcm_size)
 							{
-								*bufferp++ = find_channel->second.channel_pcm[(xa_posinc.pos >> 15) & ~1];
-								*bufferp++ = find_channel->second.channel_pcm[(xa_posinc.pos >> 15) | 1];
-								xa_posinc.pos += xa_posinc.inc;
+								samples_left = pcm_size - sample_pos;
+								if (samples_left > samples)
+									samples_left = samples;
 							}
-						}
+							else
+							{
+								samples_left = 0;
+							}
+							
+							//Copy samples
+							std::memcpy(input, find_channel->second.channel_pcm.data() + sample_pos, samples_left << 1);
+							std::memset(input + samples_left, 0, (samples - samples_left) << 1);
+							
+							xa_pos += frames;
+						});
 					}
 				}
 				
@@ -208,7 +217,7 @@ namespace System
 				
 				//Set XA state
 				xa_playing = false;
-				xa_posinc.pos = xa_posinc.inc = 0;
+				xa_pos = 0;
 				XA_SetFilter(init_file, init_channel);
 			}
 			
@@ -216,6 +225,7 @@ namespace System
 			{
 				//Set XA state
 				xa_playing = true;
+				xa_resampler.Reset();
 			}
 			
 			void Mixer::XA_SetFilter(uint8_t file, uint8_t channel)
@@ -229,7 +239,7 @@ namespace System
 				{
 					//Set resample frequency
 					uint32_t channel_frequency = ((uint8_t)find_channel->second.channel_coding & XA::Coding::SampleRate) == XA::Coding::SampleRate_2 ? 37800 : 18900;
-					xa_posinc.SetFrequency(output_frequency, channel_frequency);
+					xa_resampler.SetResampleFrequency(output_frequency, channel_frequency);
 				}
 			}
 			

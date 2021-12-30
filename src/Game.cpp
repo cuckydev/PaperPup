@@ -38,7 +38,7 @@ namespace PaperPup
 		system.GetSPU()->XA_SetFilter(1, 1);
 		system.GetSPU()->XA_Play();
 		
-		std::this_thread::sleep_for(std::chrono::seconds(30));
+		std::this_thread::sleep_for(std::chrono::seconds(300));
 		
 		return false;
 	}
