@@ -40,8 +40,8 @@ namespace System
 				
 			private:
 				//Mutex interface
-				void Mutex_Lock() override;
-				void Mutex_Unlock() override;
+				void Mutex_Lock() { ma_mutex_lock(&miniaudio_mutex); }
+				void Mutex_Unlock() { ma_mutex_unlock(&miniaudio_mutex); }
 		};
 	}
 }

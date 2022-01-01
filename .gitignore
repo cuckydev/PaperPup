@@ -1,7 +1,9 @@
 # Exclude build directories
 build/
 bin/
+out/
 iso/
 
-# Exclude submodule libraries
-lib/
+# Exclude IDE files
+.vs/
+CMakeSettings.json

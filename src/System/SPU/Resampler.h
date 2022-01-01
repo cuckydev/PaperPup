@@ -67,7 +67,7 @@ namespace System
 						int32_t *outputp = output;
 						int16_t *bufferp = resampler_buffer;
 						
-						for (size_t j = 0;;)
+						for (size_t j = 0; j < frames; j++)
 						{
 							//Write interpolated sample
 							uint64_t resampler_subl = resampler_sub & 0xFFFFFFFFULL;
@@ -84,8 +84,7 @@ namespace System
 							resampler_sub += resampler_inc;
 							
 							//Update buffer if stream not ending
-							if (++j >= frames)
-								break;
+							//TODO: should I do for condition here?
 							if (resampler_sub & ~0xFFFFFFFFULL)
 							{
 								bufferp += (resampler_sub >> 32) * channels;

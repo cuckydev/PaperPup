@@ -18,7 +18,8 @@ namespace PaperPup
 	//Constructor and destructor
 	Game::Game()
 	{
-		
+		//Setup system
+		system.GetGPU()->SetScreen("PaperPup", 320, 240, 3);
 	}
 	
 	Game::~Game()
@@ -29,17 +30,11 @@ namespace PaperPup
 	//Game interface
 	bool Game::Loop()
 	{
-		System::CD::File stream_file = system.GetCD()->FindFile("S2/STAGE2.XA1");
-		if (stream_file.stream != nullptr)
-			system.GetSPU()->XA_Load(stream_file.stream.get());
-		else
-			throw "Failed to open test XA";
-		
-		system.GetSPU()->XA_SetFilter(1, 1);
-		system.GetSPU()->XA_Play();
-		
-		std::this_thread::sleep_for(std::chrono::seconds(300));
-		
+		//Run game as long as system is running
+		while (system.Running())
+		{
+			
+		}
 		return false;
 	}
 }

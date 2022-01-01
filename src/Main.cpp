@@ -22,12 +22,13 @@ int main(int argc, char *argv[])
 		i = *argvp++;
 	
 	//Run game
-	PaperPup::Game *game;
+	PaperPup::Game *game = nullptr;
 	
+	int result = -1;
 	try
 	{
 		game = new PaperPup::Game();
-		return game->Loop() ? 1 : 0;
+		result = game->Loop() ? 1 : 0;
 	}
 	catch (const char *e_what)
 	{
@@ -40,4 +41,5 @@ int main(int argc, char *argv[])
 	
 	if (game != nullptr)
 		delete game;
+	return result;
 }

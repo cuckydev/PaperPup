@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.8)
 option(LTO "Enable link-time optimization" OFF)
 option(MSVC_LINK_STATIC_RUNTIME "Link the static MSVC runtime library (Visual Studio only)" OFF)
 option(PKG_CONFIG_STATIC_LIBS "Link libraries statically" OFF)
+option(FORCE_LOCAL_LIBS "Compile libraries locally instead of using CMake to find system installed ones" OFF)
 
 #########
 # Setup #
@@ -24,9 +25,17 @@ add_executable(PaperPup WIN32
 	# = System =
 	"src/System/System.cpp"
 	"src/System/System.h"
+	
+	"src/System/GPU/GPU.h"
+	"src/System/GPU/GPU_GL.cpp"
+	"src/System/GPU/GPU_GL.h"
+	"src/System/GPU/GPU_GLFW.cpp"
+	"src/System/GPU/GPU_GLFW.h"
+	
 	"src/System/CD/CD.h"
 	"src/System/CD/CD_Standard.cpp"
 	"src/System/CD/CD_Standard.h"
+	
 	"src/System/SPU/SPU.h"
 	"src/System/SPU/Mixer.cpp"
 	"src/System/SPU/Mixer.h"
@@ -37,6 +46,9 @@ add_executable(PaperPup WIN32
 	"src/System/SPU/SPU_miniaudio.h"
 	
 	# = Library =
+	"lib/glad/glad.c"
+	"lib/glad/glad.h"
+	"lib/glad/KHR/khrplatform.h"
 	"lib/miniaudio.h"
 )
 
@@ -49,7 +61,7 @@ target_include_directories(PaperPup PRIVATE "lib")
 
 # Force Warnings
 if(MSVC)
-	target_compile_options(PaperPup PRIVATE /W4 /WX)
+	target_compile_options(PaperPup PRIVATE /W4)
 else()
 	target_compile_options(PaperPup PRIVATE -Wall -Wextra -Wpedantic)
 endif()
@@ -124,6 +136,22 @@ set_target_properties(PaperPup PROPERTIES
 ################
 # Dependencies #
 ################
+
+# Link GLFW3
+if(NOT FORCE_LOCAL_LIBS)
+	find_package(glfw3 REQUIRED)
+endif()
+
+if(TARGET glfw)
+	target_link_libraries(PaperPup PRIVATE glfw)
+else()
+	set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+	set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
+	set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
+	add_subdirectory("lib/glfw" EXCLUDE_FROM_ALL)
+	target_link_libraries(PaperPup PRIVATE glfw)
+endif()
 
 # miniaudio requires libm, libpthread, and libdl
 find_library(LIBM m)

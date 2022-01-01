@@ -70,18 +70,5 @@ namespace System
 			mixer.Mix((int16_t*)output_buffer_void, frames_to_do);
 			ma_mutex_unlock(&miniaudio_mutex);
 		}
-		
-		//Mutex interface
-		void SPU_miniaudio::Mutex_Lock()
-		{
-			//Lock mutex
-			ma_mutex_lock(&miniaudio_mutex);
-		}
-		
-		void SPU_miniaudio::Mutex_Unlock()
-		{
-			//Unlock mutex
-			ma_mutex_unlock(&miniaudio_mutex);
-		}
 	}
 }
