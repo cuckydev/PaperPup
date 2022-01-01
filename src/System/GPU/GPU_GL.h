@@ -20,7 +20,11 @@ namespace System
 		{
 			public:
 				//Constructor and destructor
-				virtual ~GPU_GL() {}
+				GPU_GL();
+				~GPU_GL() override;
+				
+				//Screen interface
+				void SetScreen(unsigned int screen_width, unsigned int screen_height) override;
 		};
 	}
 }

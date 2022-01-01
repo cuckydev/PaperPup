@@ -26,11 +26,13 @@ add_executable(PaperPup WIN32
 	"src/System/System.cpp"
 	"src/System/System.h"
 	
+	"src/System/Frontend/Frontend.h"
+	"src/System/Frontend/Frontend_GLFW.cpp"
+	"src/System/Frontend/Frontend_GLFW.h"
+	
 	"src/System/GPU/GPU.h"
 	"src/System/GPU/GPU_GL.cpp"
 	"src/System/GPU/GPU_GL.h"
-	"src/System/GPU/GPU_GLFW.cpp"
-	"src/System/GPU/GPU_GLFW.h"
 	
 	"src/System/CD/CD.h"
 	"src/System/CD/CD_Standard.cpp"
@@ -152,6 +154,10 @@ else()
 	add_subdirectory("lib/glfw" EXCLUDE_FROM_ALL)
 	target_link_libraries(PaperPup PRIVATE glfw)
 endif()
+
+# Link GLM
+add_subdirectory("lib/glm" EXCLUDE_FROM_ALL)
+target_link_libraries(PaperPup PRIVATE glm)
 
 # miniaudio requires libm, libpthread, and libdl
 find_library(LIBM m)

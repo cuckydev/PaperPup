@@ -19,7 +19,8 @@ namespace PaperPup
 	Game::Game()
 	{
 		//Setup system
-		system.GetGPU()->SetScreen("PaperPup", 320, 240, 3);
+		system.GetFrontend()->SetWindow("PaperPup", 320 * 3, 240 * 3);
+		system.GetGPU()->SetScreen(320, 240);
 	}
 	
 	Game::~Game()
@@ -31,9 +32,17 @@ namespace PaperPup
 	bool Game::Loop()
 	{
 		//Run game as long as system is running
-		while (system.Running())
+		while (1)
 		{
+			//Handle frontend events
+			system.GetFrontend()->HandleEvents();
+			if (system.GetFrontend()->ShouldClose())
+				break;
 			
+			//Run game
+			
+			//Swap frontend buffers
+			system.GetFrontend()->SwapBuffers();
 		}
 		return false;
 	}

@@ -20,18 +20,17 @@ namespace System
 		{
 			protected:
 				//Screen state
-				unsigned int screen_width, screen_height, screen_scale;
+				unsigned int screen_width, screen_height;
 				
 			public:
 				//Constructor and destructor
 				virtual ~GPU() {}
 				
 				//Screen interface
-				virtual void SetScreen(std::string title, unsigned int width, unsigned int height, unsigned int scale) = 0;
+				virtual void SetScreen(unsigned int width, unsigned int height) = 0;
 				
 				unsigned int GetWidth() { return screen_width; }
 				unsigned int GetHeight() { return screen_height; }
-				unsigned int GetScale() { return screen_scale; }
 		};
 	}
 }

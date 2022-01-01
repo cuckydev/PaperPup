@@ -9,7 +9,8 @@
 
 #include "System.h"
 
-#include "GPU/GPU_GLFW.h"
+#include "Frontend/Frontend_GLFW.h"
+#include "GPU/GPU_GL.h"
 #include "CD/CD_Standard.h"
 #include "SPU/SPU_miniaudio.h"
 
@@ -20,7 +21,8 @@ namespace System
 	System::System()
 	{
 		//Create components
-		gpu = new GPU::GPU_GLFW();
+		frontend = new Frontend::Frontend_GLFW();
+		gpu = new GPU::GPU_GL();
 		cd = new CD::CD_Standard();
 		spu = new SPU::SPU_miniaudio();
 	}
@@ -34,5 +36,7 @@ namespace System
 			delete cd;
 		if (gpu != nullptr)
 			delete gpu;
+		if (frontend != nullptr)
+			delete frontend;
 	}
 }
