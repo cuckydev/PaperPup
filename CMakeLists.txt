@@ -21,6 +21,10 @@ add_executable(PaperPup WIN32
 	"src/Main.cpp"
 	"src/Game.cpp"
 	"src/Game.h"
+	"src/TimImage.cpp"
+	"src/TimImage.h"
+	"src/IntArchive.cpp"
+	"src/IntArchive.h"
 	
 	# = System =
 	"src/System/System.cpp"

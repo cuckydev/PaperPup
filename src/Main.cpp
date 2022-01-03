@@ -11,8 +11,10 @@
 
 #include "Game.h"
 
+//Program arguments
 std::vector<std::string> main_arg;
 
+//Entry point
 int main(int argc, char *argv[])
 {
 	//Copy arguments
@@ -30,14 +32,10 @@ int main(int argc, char *argv[])
 		game = new PaperPup::Game();
 		result = game->Loop() ? 1 : 0;
 	}
-	catch (const char *e_what)
-	{
-		std::cout << "[EXCEPTION CAUGHT] " << e_what << std::endl;
-	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		std::cout << "[EXCEPTION CAUGHT] " << e.what() << std::endl;
-	};
+	}
 	
 	if (game != nullptr)
 		delete game;

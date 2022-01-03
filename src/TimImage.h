@@ -10,22 +10,30 @@
 #pragma once
 
 #include <iostream>
-#include <memory>
-#include <string>
 
-namespace System
+#include "Game.h"
+
+namespace PaperPup
 {
-	namespace CD
+	namespace TimImage
 	{
-		//CD class
-		class CD
+		//Tim image class
+		class TimImage
 		{
+			private:
+				//Parent game
+				Game &game;
+				
+				//Tim information
+				uint16_t *tim_clut = nullptr, *tim_tex = nullptr;
+				
 			public:
 				//Constructor and destructor
-				virtual ~CD() {}
+				TimImage(Game &_game) : game(_game) {}
+				~TimImage();
 				
-				//CD interface
-				virtual std::shared_ptr<std::istream> FindFile(std::string name) = 0;
+				//Tim interface
+				bool Read(std::istream &stream);
 		};
 	}
 }

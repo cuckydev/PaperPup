@@ -30,13 +30,13 @@ namespace System
 				Frontend_GLFW();
 				~Frontend_GLFW() override;
 				
-				//Frontend interface
-				void SetWindow(std::string window_title, unsigned int window_width, unsigned int window_height) override;
+				//Window interface
+				void Window_Set(std::string title, unsigned int width, unsigned int height) override;
 				
-				void SwapBuffers() override;
+				void Window_SwapBuffers() override;
 				
-				void HandleEvents() override;
-				bool ShouldClose() override;
+				void Input_HandleEvents() override;
+				bool Input_ShouldClose() override;
 		};
 	}
 }

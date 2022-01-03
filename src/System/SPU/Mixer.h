@@ -15,7 +15,6 @@
 #include <vector>
 #include <cstdint>
 #include <cstddef>
-#include <cstring>
 
 #include "ADPCM.h"
 #include "Resampler.h"
@@ -79,7 +78,7 @@ namespace System
 					void Mix(int16_t *output, size_t frames);
 					
 					//XA interface
-					void XA_Load(std::istream *stream);
+					void XA_Load(std::istream &stream);
 					
 					void XA_Play();
 					void XA_SetFilter(uint8_t file, uint8_t channel);

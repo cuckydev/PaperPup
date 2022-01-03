@@ -9,7 +9,11 @@
 
 #include "Mixer.h"
 
+#include <algorithm>
+#include <iterator>
 #include <fstream>
+
+#include "Main.h"
 
 namespace System
 {
@@ -65,8 +69,8 @@ namespace System
 							}
 							
 							//Copy samples
-							std::memcpy(input, find_channel->second.channel_pcm.data() + sample_pos, samples_left << 1);
-							std::memset(input + samples_left, 0, (samples - samples_left) << 1);
+							std::copy(find_channel->second.channel_pcm.data() + sample_pos, find_channel->second.channel_pcm.data() + sample_pos + samples_left, input);
+							std::fill(input + samples_left, input + samples, 0);
 							
 							xa_pos += frames;
 						});
@@ -103,10 +107,10 @@ namespace System
 			}
 			
 			//XA interface
-			void Mixer::XA_Load(std::istream *stream)
+			void Mixer::XA_Load(std::istream &stream)
 			{
 				//Stop playing if bad stream
-				if (stream == nullptr || stream->good() == false)
+				if (stream.good() == false)
 				{
 					XA_Stop();
 					return;
@@ -116,11 +120,11 @@ namespace System
 				uint8_t init_file = 0, init_channel = 0, init_filter = 0;
 				xa_channels.clear();
 				
-				while (!stream->eof())
+				while (!stream.eof())
 				{
 					//Read sector
 					char sector[2336];
-					stream->read(sector, 2336);
+					stream.read(sector, 2336);
 					
 					//Use filter
 					if (init_filter == 0)
@@ -210,7 +214,7 @@ namespace System
 						}
 						else
 						{
-							throw "8-bit XA unsupported";
+							throw PaperPup::Exception("8-bit XA unsupported");
 						}
 					}
 				}

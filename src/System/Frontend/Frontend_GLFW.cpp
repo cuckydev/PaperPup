@@ -11,43 +11,27 @@
 
 #include "glad/glad.h"
 
+#include "Main.h"
+
 namespace System
 {
 	namespace Frontend
 	{
+		//GLFW callbacks
+		static void GLFW_FramebufferSizeCallback(GLFWwindow *window, int fb_width, int fb_height)
+		{
+			(void)window;
+			
+			//Use framebuffer viewport
+			glViewport(0, 0, fb_width, fb_height);
+		}
+		
 		//Frontend GLFW class
 		//Constructor and destructor
 		Frontend_GLFW::Frontend_GLFW()
 		{
 			//Inititialize GLFW
 			glfwInit();
-		}
-		
-		Frontend_GLFW::~Frontend_GLFW()
-		{
-			//Destroy window
-			if (glfw_window != nullptr)
-				glfwDestroyWindow(glfw_window);
-			
-			//Deinitialize GLFW
-			glfwTerminate();
-		}
-		
-		//Frontend interface
-		void Frontend_GLFW::SetWindow(std::string window_title, unsigned int window_width, unsigned int window_height)
-		{
-			//Destroy previous window
-			if (glfw_window != nullptr)
-				glfwDestroyWindow(glfw_window);
-			
-			//Get monitor video mode
-			GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-			
-			const GLFWvidmode *mode;
-			if (monitor != NULL)
-				mode = glfwGetVideoMode(monitor);
-			else
-				mode = NULL;
 			
 			//Set window hints
 			//OpenGL 3.2 Core Profile
@@ -62,14 +46,12 @@ namespace System
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 			
 			//Create window
-			if ((glfw_window = glfwCreateWindow(window_width, window_height, window_title.c_str(), nullptr, nullptr)) == nullptr)
-				throw "[System::Frontend::Frontend_GLFW::SetWindow] Failed to create window";
+			if ((glfw_window = glfwCreateWindow(1, 1, "", nullptr, nullptr)) == nullptr)
+				throw PaperPup::Exception("[System::Frontend::Frontend_GLFW::SetWindow] Failed to create window");
 			glfwMakeContextCurrent(glfw_window);
 			
-			//Center window
-			if (mode != NULL)
-				glfwSetWindowPos(glfw_window, (mode->width - window_width) / 2, (mode->height - window_height) / 2);
-			glfwShowWindow(glfw_window);
+			//Define callback for window resizing
+			glfwSetFramebufferSizeCallback(glfw_window, GLFW_FramebufferSizeCallback);
 			
 			//Enable vsync
 			if (glfwExtensionSupported("GLX_EXT_swap_control_tear") || glfwExtensionSupported("WGL_EXT_swap_control_tear"))
@@ -79,24 +61,64 @@ namespace System
 			
 			//Initialize GLAD
 			if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-				throw "[System::Frontend::Frontend_GLFW::SetWindow] Failed to initialize GLAD";
+				throw PaperPup::Exception("[System::Frontend::Frontend_GLFW::SetWindow] Failed to initialize GLAD");
 			if (!GLAD_GL_VERSION_3_2)
-				throw "[System::Frontend::Frontend_GLFW::SetWindow] OpenGL 3.2 is not available";
+				throw PaperPup::Exception("[System::Frontend::Frontend_GLFW::SetWindow] OpenGL 3.2 is not available");
 		}
 		
-		void Frontend_GLFW::SwapBuffers()
+		Frontend_GLFW::~Frontend_GLFW()
+		{
+			//Destroy window
+			if (glfw_window != nullptr)
+				glfwDestroyWindow(glfw_window);
+			
+			//Deinitialize GLFW
+			glfwTerminate();
+		}
+		
+		//Window interface
+		void Frontend_GLFW::Window_Set(std::string title, unsigned int width, unsigned int height)
+		{
+			//Use given title and dimensions
+			window_title = title;
+			window_width = width;
+			window_height = height;
+			
+			//Get monitor video mode
+			GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+			
+			const GLFWvidmode *mode;
+			if (monitor != NULL)
+				mode = glfwGetVideoMode(monitor);
+			else
+				mode = NULL;
+			
+			//Hide window
+			glfwHideWindow(glfw_window);
+			
+			//Update window properties
+			glfwSetWindowTitle(glfw_window, title.c_str());
+			glfwSetWindowSize(glfw_window, window_width, window_height);
+			
+			//Center window
+			if (mode != NULL)
+				glfwSetWindowPos(glfw_window, (mode->width - window_width) / 2, (mode->height - window_height) / 2);
+			glfwShowWindow(glfw_window);
+		}
+		
+		void Frontend_GLFW::Window_SwapBuffers()
 		{
 			//Swap window buffers
 			glfwSwapBuffers(glfw_window);
 		}
 		
-		void Frontend_GLFW::HandleEvents()
+		void Frontend_GLFW::Input_HandleEvents()
 		{
 			//Process GLFW events
 			glfwPollEvents();
 		}
 		
-		bool Frontend_GLFW::ShouldClose()
+		bool Frontend_GLFW::Input_ShouldClose()
 		{
 			//Check if GLFW has processed an event to close the window
 			return glfwWindowShouldClose(glfw_window);

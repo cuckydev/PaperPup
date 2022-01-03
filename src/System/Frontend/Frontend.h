@@ -27,17 +27,18 @@ namespace System
 				//Constructor and destructor
 				virtual ~Frontend() {}
 				
-				//Frontend interface
-				virtual void SetWindow(std::string window_title, unsigned int window_width, unsigned int window_height) = 0;
+				//Window interface
+				virtual void Window_Set(std::string title, unsigned int width, unsigned int height) = 0;
 				
-				std::string GetTitle() { return window_title; }
-				unsigned int GetWidth() { return window_width; }
-				unsigned int GetHeight() { return window_height; }
+				std::string Window_GetTitle() { return window_title; }
+				unsigned int Window_GetWidth() { return window_width; }
+				unsigned int Window_GetHeight() { return window_height; }
 				
-				virtual void SwapBuffers() = 0;
+				virtual void Window_SwapBuffers() = 0;
 				
-				virtual void HandleEvents() = 0;
-				virtual bool ShouldClose() = 0;
+				//Input interface
+				virtual void Input_HandleEvents() = 0;
+				virtual bool Input_ShouldClose() = 0;
 		};
 	}
 }

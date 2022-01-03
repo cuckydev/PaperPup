@@ -30,7 +30,7 @@ namespace System
 				virtual ~SPU() {}
 				
 				//XA interface
-				void XA_Load(std::istream *stream)
+				void XA_Load(std::istream &stream)
 				{
 					//Lock stream and call mixer XA play
 					Mutex_Lock();

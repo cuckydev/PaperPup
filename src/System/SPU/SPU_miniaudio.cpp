@@ -12,6 +12,8 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 
+#include "Main.h"
+
 namespace System
 {
 	namespace SPU
@@ -21,12 +23,12 @@ namespace System
 		SPU_miniaudio::SPU_miniaudio()
 		{
 			//Initialize miniaudio context
-			if (ma_context_init(NULL, 0, NULL, &miniaudio_context) != MA_SUCCESS)
-				throw "[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to initialize miniaudio context";
+			if (ma_context_init(nullptr, 0, nullptr, &miniaudio_context) != MA_SUCCESS)
+				throw PaperPup::Exception("[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to initialize miniaudio context");
 			
 			//Create miniaudio device
 			ma_device_config config = ma_device_config_init(ma_device_type_playback);
-			config.playback.pDeviceID = NULL;
+			config.playback.pDeviceID = nullptr;
 			config.playback.format = ma_format_s16;
 			config.playback.channels = 2;
 			config.sampleRate = 0;
@@ -37,14 +39,14 @@ namespace System
 			config.pUserData = (void*)this;
 			
 			if (ma_device_init(&miniaudio_context, &config, &miniaudio_device) != MA_SUCCESS)
-				throw "[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio device";
+				throw PaperPup::Exception("[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio device");
 			
 			//Setup mixer
 			mixer.SetOutputFrequency(miniaudio_device.sampleRate);
 			
 			//Create miniaudio mutex and start device
 			if (ma_mutex_init(&miniaudio_mutex) != MA_SUCCESS)
-				throw "[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio mutex";
+				throw PaperPup::Exception("[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio mutex");
 			
 			ma_device_start(&miniaudio_device);
 		}

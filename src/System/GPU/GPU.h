@@ -10,11 +10,18 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 
 namespace System
 {
 	namespace GPU
 	{
+		//GPU constants
+		static const unsigned int VRAM_PAGEW = 16;
+		static const unsigned int VRAM_PAGEH = 2;
+		static const unsigned int VRAM_TEXW = VRAM_PAGEW * 64;
+		static const unsigned int VRAM_TEXH = VRAM_PAGEH * 256;
+		
 		//GPU class
 		class GPU
 		{
@@ -27,10 +34,15 @@ namespace System
 				virtual ~GPU() {}
 				
 				//Screen interface
-				virtual void SetScreen(unsigned int width, unsigned int height) = 0;
+				virtual void Screen_Set(unsigned int width, unsigned int height) = 0;
 				
-				unsigned int GetWidth() { return screen_width; }
-				unsigned int GetHeight() { return screen_height; }
+				unsigned int Screen_GetWidth() { return screen_width; }
+				unsigned int Screen_GetHeight() { return screen_height; }
+				
+				//VRAM interface
+				virtual void VRAM_Fill(uint16_t f, unsigned int x, unsigned int y, unsigned int w, unsigned int h) = 0;
+				virtual void VRAM_Write(const uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h) = 0;
+				virtual void VRAM_Read(uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h) = 0;
 		};
 	}
 }
