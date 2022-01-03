@@ -49,7 +49,7 @@ namespace PaperPup
 		{
 			std::shared_ptr<std::ifstream> test_int = system.GetCD()->FindFile("S1/COMPO01.INT");
 			if (test_int == nullptr)
-				throw PaperPup::Exception("Failed to open S1/COMPO01.XA1");
+				throw PaperPup::Exception("Failed to open S1/COMPO01.INT");
 			IntArchive::IntArchive test_int_archive;
 			test_int_archive.Read(*test_int);
 			
@@ -84,6 +84,24 @@ namespace PaperPup
 				break;
 			
 			//Run game
+			System::GPU::Triangle triangle;
+			triangle.vertex[0].x = -1.0f;
+			triangle.vertex[0].y = 1.0f;
+			triangle.vertex[0].u = 60;
+			triangle.vertex[0].v = 0;
+			triangle.vertex[1].x = -1.0f;
+			triangle.vertex[1].y = -1.0f;
+			triangle.vertex[1].u = 60;
+			triangle.vertex[1].v = 185;
+			triangle.vertex[2].x = 1.0f;
+			triangle.vertex[2].y = 1.0f;
+			triangle.vertex[2].u = 252;
+			triangle.vertex[2].v = 0;
+			triangle.tpage = 6;
+			triangle.cpage = System::GPU::VRAM_CPAGEW * 480;
+			triangle.bpp = System::GPU::Bpp::Index4;
+			
+			system.GetGPU()->Render_Triangle(triangle);
 			
 			//Swap frontend buffers
 			system.GetFrontend()->Window_SwapBuffers();

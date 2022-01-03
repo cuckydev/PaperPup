@@ -119,6 +119,9 @@ namespace System
 				void VRAM_Write(const uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
 				void VRAM_Read(uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
 				
+				//Render interface
+				void Render_Triangle(const Triangle &tri) override;
+				
 			private:
 				//Internal VRAM interface
 				void VRAM_Upload(unsigned int x, unsigned int y, unsigned int w, unsigned int h);
