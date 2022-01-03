@@ -9,8 +9,6 @@
 
 #pragma once
 
-#include "Game.h"
-
 #include <iostream>
 #include <vector>
 #include <string>
@@ -26,18 +24,12 @@ namespace PaperPup
 		class IntArchive
 		{
 			private:
-				//Parent game
-				Game &game;
-				
 				//Archive files
 				std::vector<std::string> load_tims;
 				std::vector<std::pair<std::string, std::string>> load_vabs;
 				std::unordered_map<std::string, std::vector<uint8_t>> files;
 				
 			public:
-				//Int constructor
-				IntArchive(Game &_game) : game(_game) {}
-				
 				//Int interface
 				bool Read(std::istream &stream);
 				

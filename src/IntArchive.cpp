@@ -62,7 +62,8 @@ namespace PaperPup
 							
 							//Add to load tim list and file list
 							load_tims.push_back(file_name);
-							files.emplace(std::make_pair(file_name, std::vector<uint8_t>(block_datap, (block_datap += file_size))));
+							files.emplace(std::make_pair(file_name, std::vector<uint8_t>(block_datap, block_datap + file_size)));
+							block_datap += file_size;
 						}
 						break;
 					}
@@ -78,7 +79,8 @@ namespace PaperPup
 							filep += 0x14;
 							
 							//Add to file list
-							files.emplace(std::make_pair(file_name, std::vector<uint8_t>(block_datap, (block_datap += file_size))));
+							files.emplace(std::make_pair(file_name, std::vector<uint8_t>(block_datap, block_datap + file_size)));
+							block_datap += file_size;
 						}
 						
 						//Add to load vab list
@@ -95,7 +97,8 @@ namespace PaperPup
 							filep += 0x14;
 							
 							//Add to file list
-							files.emplace(std::make_pair(file_name, std::vector<uint8_t>(block_datap, (block_datap += file_size))));
+							files.emplace(std::make_pair(file_name, std::vector<uint8_t>(block_datap, block_datap + file_size)));
+							block_datap += file_size;
 						}
 						break;
 					}

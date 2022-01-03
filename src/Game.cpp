@@ -10,8 +10,11 @@
 #include "Game.h"
 
 #include "IntArchive.h"
+#include "TimImage.h"
 
 #include "Main.h"
+
+#include "StreamHelper.h"
 
 namespace PaperPup
 {
@@ -34,7 +37,7 @@ namespace PaperPup
 	{
 		//Play some music
 		{
-			std::shared_ptr<std::istream> test_xa = system.GetCD()->FindFile("S9/STAGE9.XA1");
+			std::shared_ptr<std::ifstream> test_xa = system.GetCD()->FindFile("S9/STAGE9.XA1");
 			if (test_xa == nullptr)
 				throw PaperPup::Exception("Failed to open S1/STAGE1.XA1");
 			system.GetSPU()->XA_Load(*test_xa);
@@ -44,11 +47,32 @@ namespace PaperPup
 		
 		//Read INT file
 		{
-			std::shared_ptr<std::istream> test_int = system.GetCD()->FindFile("S1/COMPO01.INT");
+			std::shared_ptr<std::ifstream> test_int = system.GetCD()->FindFile("S1/COMPO01.INT");
 			if (test_int == nullptr)
 				throw PaperPup::Exception("Failed to open S1/COMPO01.XA1");
-			IntArchive::IntArchive test_int_archive(*this);
+			IntArchive::IntArchive test_int_archive;
 			test_int_archive.Read(*test_int);
+			
+			for (auto &i : test_int_archive.GetLoadTims())
+			{
+				TimImage::TimImage image;
+				std::vector<uint8_t> *vec = test_int_archive[i];
+				
+				if (vec != nullptr)
+				{
+					StreamHelper::imemstream vec_str((const char*)vec->data(), vec->size());
+					if (!image.Read(vec_str))
+					{
+						const TimImage::TimPart &part_tex = image.GetTex();
+						if (part_tex.data != nullptr)
+							system.GetGPU()->VRAM_Write(part_tex.data, part_tex.x, part_tex.y, part_tex.w, part_tex.h);
+						
+						const TimImage::TimPart &part_clut = image.GetCLUT();
+						if (part_clut.data != nullptr)
+							system.GetGPU()->VRAM_Write(part_clut.data, part_clut.x, part_clut.y, part_clut.w, part_clut.h);
+					}
+				}
+			}
 		}
 		
 		//Run game as long as system is running

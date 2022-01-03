@@ -19,6 +19,7 @@ project(PaperPup LANGUAGES C CXX)
 add_executable(PaperPup WIN32
 	# = Engine =
 	"src/Main.cpp"
+	"src/StreamHelper.h"
 	"src/Game.cpp"
 	"src/Game.h"
 	"src/TimImage.cpp"

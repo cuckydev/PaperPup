@@ -100,7 +100,7 @@ namespace System
 		{
 			private:
 				//VRAM
-				uint16_t vram[VRAM_TEXH][VRAM_TEXW];
+				uint16_t vram[VRAM_TEXH][VRAM_TEXW]{};
 				GLuint vram_texture;
 				
 				//Shaders

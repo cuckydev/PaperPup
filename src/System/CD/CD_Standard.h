@@ -24,7 +24,7 @@ namespace System
 				~CD_Standard() override;
 				
 				//CD interface
-				std::shared_ptr<std::istream> FindFile(std::string name) override;
+				std::shared_ptr<std::ifstream> FindFile(std::string name) override;
 		};
 	}
 }

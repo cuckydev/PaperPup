@@ -9,8 +9,6 @@
 
 #include "CD_Standard.h"
 
-#include <fstream>
-
 namespace System
 {
 	namespace CD
@@ -28,7 +26,7 @@ namespace System
 		}
 		
 		//CD interface
-		std::shared_ptr<std::istream> CD_Standard::FindFile(std::string name)
+		std::shared_ptr<std::ifstream> CD_Standard::FindFile(std::string name)
 		{
 			std::shared_ptr<std::ifstream> stream = std::make_shared<std::ifstream>("iso/" + name, std::ifstream::binary);
 			return stream->is_open() ? stream : nullptr;

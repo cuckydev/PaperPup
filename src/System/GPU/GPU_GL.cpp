@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include <iostream>
+
 //GL shaders
 static const char *gl_shader_vert = R"(
 #version 150 core
@@ -128,7 +130,7 @@ namespace System
 		void GPU_GL::VRAM_Fill(uint16_t f, unsigned int x, unsigned int y, unsigned int w, unsigned int h)
 		{
 			//Drop invalid coordinates
-			if (w >= VRAM_TEXW || x >= (VRAM_TEXW - w) || h >= VRAM_TEXH || y >= (VRAM_TEXH - h))
+			if (w > VRAM_TEXW || x > (VRAM_TEXW - w) || h > VRAM_TEXH || y > (VRAM_TEXH - h))
 				return;
 			
 			//Fill to VRAM
@@ -146,7 +148,8 @@ namespace System
 		void GPU_GL::VRAM_Write(const uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h)
 		{
 			//Drop invalid coordinates
-			if (w >= VRAM_TEXW || x >= (VRAM_TEXW - w) || h >= VRAM_TEXH || y >= (VRAM_TEXH - h))
+			std::cout << "W " << (int)x << ", " << (int)y << ", " << (int)w << ", " << (int)h << std::endl;
+			if (w > VRAM_TEXW || x > (VRAM_TEXW - w) || h > VRAM_TEXH || y > (VRAM_TEXH - h))
 				return;
 			
 			//Read from data to VRAM
@@ -165,7 +168,8 @@ namespace System
 		void GPU_GL::VRAM_Read(uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h)
 		{
 			//Drop invalid coordinates
-			if (w >= VRAM_TEXW || x >= (VRAM_TEXW - w) || h >= VRAM_TEXH || y >= (VRAM_TEXH - h))
+			std::cout << "R " << (int)x << ", " << (int)y << ", " << (int)w << ", " << (int)h << std::endl;
+			if (w > VRAM_TEXW || x > (VRAM_TEXW - w) || h > VRAM_TEXH || y > (VRAM_TEXH - h))
 				return;
 			
 			//Read from VRAM to data

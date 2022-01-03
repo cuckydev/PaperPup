@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 
@@ -25,7 +25,7 @@ namespace System
 				virtual ~CD() {}
 				
 				//CD interface
-				virtual std::shared_ptr<std::istream> FindFile(std::string name) = 0;
+				virtual std::shared_ptr<std::ifstream> FindFile(std::string name) = 0;
 		};
 	}
 }

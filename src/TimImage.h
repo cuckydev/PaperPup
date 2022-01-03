@@ -10,30 +10,47 @@
 #pragma once
 
 #include <iostream>
-
-#include "Game.h"
+#include <cstdint>
 
 namespace PaperPup
 {
 	namespace TimImage
 	{
+		//Tim enums
+		enum TimBpp
+		{
+			Index4,
+			Index8,
+			RGBX16,
+			RGBX24
+		};
+		
+		//Tim part structure
+		struct TimPart
+		{
+			uint16_t *data = nullptr;
+			unsigned int x, y, w, h;
+		};
+		
 		//Tim image class
 		class TimImage
 		{
 			private:
-				//Parent game
-				Game &game;
-				
 				//Tim information
-				uint16_t *tim_clut = nullptr, *tim_tex = nullptr;
+				TimBpp bpp;
+				
+				TimPart part_tex, part_clut;
 				
 			public:
-				//Constructor and destructor
-				TimImage(Game &_game) : game(_game) {}
+				//Destructor
 				~TimImage();
 				
 				//Tim interface
-				bool Read(std::istream &stream);
+				bool Read(std::istream &data);
+				
+				TimBpp GetBpp() { return bpp; }
+				const TimPart &GetTex() { return part_tex; }
+				const TimPart &GetCLUT() { return part_clut; }
 		};
 	}
 }
