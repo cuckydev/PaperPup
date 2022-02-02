@@ -13,25 +13,25 @@
 #include <vector>
 #include <stdexcept>
 
-//Program arguments
+// Program arguments
 extern std::vector<std::string> main_arg;
 
 namespace PaperPup
 {
-	//Exception class
+	// Exception class
 	class Exception : public std::exception
 	{
 		protected:
-			//Exception string
+			// Exception string
 			std::string what_str;
 			
 		public:
-			//Constructor and destructor
+			// Constructor and destructor
 			explicit Exception(std::string str) : what_str(str) {}
 			explicit Exception(const char *str) : what_str(str) {}
 			virtual ~Exception() noexcept {}
 			
-			//What
+			// What
 			virtual const char *what() const noexcept override { return what_str.c_str(); }
 	};
 }

@@ -17,14 +17,14 @@ namespace System
 {
 	namespace CD
 	{
-		//CD class
+		// CD class
 		class CD
 		{
 			public:
-				//Constructor and destructor
+				// Constructor and destructor
 				virtual ~CD() {}
 				
-				//CD interface
+				// CD interface
 				virtual std::shared_ptr<std::ifstream> FindFile(std::string name) = 0;
 		};
 	}

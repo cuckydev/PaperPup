@@ -13,22 +13,22 @@
 
 namespace PaperPup
 {
-	//Game class
+	// Game class
 	class Game
 	{
 		private:
-			//System
+			// System
 			System::System system;
 			
 		public:
-			//Constructor and destructor
+			// Constructor and destructor
 			Game();
 			~Game();
 			
-			//Game interface
+			// Game interface
 			bool Loop();
 			
-			//Gets and sets
+			// Gets and sets
 			System::System &GetSystem() { return system; }
 	};
 	

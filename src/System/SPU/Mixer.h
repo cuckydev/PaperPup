@@ -17,7 +17,8 @@
 #include <cstddef>
 
 #include "ADPCM.h"
-#include "Resampler.h"
+
+#include "clownresampler.h"
 
 namespace System
 {
@@ -25,7 +26,7 @@ namespace System
 	{
 		namespace Mixer
 		{
-			//XA types
+			// XA types
 			namespace XA
 			{
 				enum Coding
@@ -35,8 +36,8 @@ namespace System
 					Channels_Stereo = (1 << 0),
 					
 					SampleRate   = (3 << 2),
-					SampleRate_2 = (0 << 2), //37800hz
-					SampleRate_1 = (1 << 2), //18900hz
+					SampleRate_2 = (0 << 2), // 37800hz
+					SampleRate_1 = (1 << 2), // 18900hz
 					
 					SampleBits   = (3 << 4),
 					SampleBits_4 = (0 << 4),
@@ -45,7 +46,7 @@ namespace System
 				
 				struct Channel
 				{
-					//XA channel data
+					// XA channel data
 					uint8_t channel_coding;
 					
 					ADPCM::Decoder channel_decoder[2];
@@ -53,14 +54,14 @@ namespace System
 				};
 			}
 			
-			//Mixer class
+			// Mixer class
 			class Mixer
 			{
 				private:
-					//Mixer state
+					// Mixer state
 					uint32_t output_frequency = 0;
 					
-					//XA state
+					// XA state
 					bool xa_playing = false;
 					
 					uint16_t xa_filter = 0x0000;
@@ -68,16 +69,17 @@ namespace System
 					std::unordered_map<uint16_t, XA::Channel> xa_channels;
 					size_t xa_pos = 0;
 					
-					Resampler::Resampler<2> xa_resampler;
+					uint32_t xa_frequency = 37800;
+					ClownResampler_HighLevel_State xa_resampler;
 					
 				public:
-					//Mixer interface
+					// Mixer interface
 					void SetOutputFrequency(uint32_t frequency);
 					uint32_t GetOutputFrequency() { return output_frequency; }
 					
 					void Mix(int16_t *output, size_t frames);
 					
-					//XA interface
+					// XA interface
 					void XA_Load(std::istream &stream);
 					
 					void XA_Play();

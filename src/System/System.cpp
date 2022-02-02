@@ -16,11 +16,11 @@
 
 namespace System
 {
-	//System class
-	//Constructor and destructor
+	// System class
+	// Constructor and destructor
 	System::System()
 	{
-		//Create components
+		// Create components
 		frontend = new Frontend::Frontend_GLFW();
 		gpu = new GPU::GPU_GL();
 		cd = new CD::CD_Standard();
@@ -29,7 +29,7 @@ namespace System
 	
 	System::~System()
 	{
-		//Delete components
+		// Delete components
 		if (spu != nullptr)
 			delete spu;
 		if (cd != nullptr)

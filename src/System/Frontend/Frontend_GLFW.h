@@ -18,19 +18,19 @@ namespace System
 {
 	namespace Frontend
 	{
-		//Frontend GLFW class
+		// Frontend GLFW class
 		class Frontend_GLFW : public Frontend
 		{
 			private:
-				//GLFW window
+				// GLFW window
 				GLFWwindow *glfw_window = nullptr;
 				
 			public:
-				//Constructor and destructor
+				// Constructor and destructor
 				Frontend_GLFW();
 				~Frontend_GLFW() override;
 				
-				//Window interface
+				// Window interface
 				void Window_Set(std::string title, unsigned int width, unsigned int height) override;
 				
 				void Window_SwapBuffers() override;

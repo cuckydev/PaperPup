@@ -17,49 +17,49 @@ namespace System
 {
 	namespace Frontend
 	{
-		//GLFW callbacks
+		// GLFW callbacks
 		static void GLFW_FramebufferSizeCallback(GLFWwindow *window, int fb_width, int fb_height)
 		{
 			(void)window;
 			
-			//Use framebuffer viewport
+			// Use framebuffer viewport
 			glViewport(0, 0, fb_width, fb_height);
 		}
 		
-		//Frontend GLFW class
-		//Constructor and destructor
+		// Frontend GLFW class
+		// Constructor and destructor
 		Frontend_GLFW::Frontend_GLFW()
 		{
-			//Inititialize GLFW
+			// Inititialize GLFW
 			glfwInit();
 			
-			//Set window hints
-			//OpenGL 3.2 Core Profile
+			// Set window hints
+			// OpenGL 3.2 Core Profile
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 			
-			//Set window to be non-resizable
+			// Set window to be non-resizable
 			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 			
-			//Create window
+			// Create window
 			if ((glfw_window = glfwCreateWindow(1, 1, "", nullptr, nullptr)) == nullptr)
 				throw PaperPup::Exception("[System::Frontend::Frontend_GLFW::SetWindow] Failed to create window");
 			glfwMakeContextCurrent(glfw_window);
 			
-			//Define callback for window resizing
+			// Define callback for window resizing
 			glfwSetFramebufferSizeCallback(glfw_window, GLFW_FramebufferSizeCallback);
 			
-			//Enable vsync
+			// Enable vsync
 			if (glfwExtensionSupported("GLX_EXT_swap_control_tear") || glfwExtensionSupported("WGL_EXT_swap_control_tear"))
 				glfwSwapInterval(-1);
 			else
 				glfwSwapInterval(1);
 			
-			//Initialize GLAD
+			// Initialize GLAD
 			if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 				throw PaperPup::Exception("[System::Frontend::Frontend_GLFW::SetWindow] Failed to initialize GLAD");
 			if (!GLAD_GL_VERSION_3_2)
@@ -68,23 +68,23 @@ namespace System
 		
 		Frontend_GLFW::~Frontend_GLFW()
 		{
-			//Destroy window
+			// Destroy window
 			if (glfw_window != nullptr)
 				glfwDestroyWindow(glfw_window);
 			
-			//Deinitialize GLFW
+			// Deinitialize GLFW
 			glfwTerminate();
 		}
 		
-		//Window interface
+		// Window interface
 		void Frontend_GLFW::Window_Set(std::string title, unsigned int width, unsigned int height)
 		{
-			//Use given title and dimensions
+			// Use given title and dimensions
 			window_title = title;
 			window_width = width;
 			window_height = height;
 			
-			//Get monitor video mode
+			// Get monitor video mode
 			GLFWmonitor *monitor = glfwGetPrimaryMonitor();
 			
 			const GLFWvidmode *mode;
@@ -93,14 +93,14 @@ namespace System
 			else
 				mode = NULL;
 			
-			//Hide window
+			// Hide window
 			glfwHideWindow(glfw_window);
 			
-			//Update window properties
+			// Update window properties
 			glfwSetWindowTitle(glfw_window, title.c_str());
 			glfwSetWindowSize(glfw_window, window_width, window_height);
 			
-			//Center window
+			// Center window
 			if (mode != NULL)
 				glfwSetWindowPos(glfw_window, (mode->width - window_width) / 2, (mode->height - window_height) / 2);
 			glfwShowWindow(glfw_window);
@@ -108,19 +108,19 @@ namespace System
 		
 		void Frontend_GLFW::Window_SwapBuffers()
 		{
-			//Swap window buffers
+			// Swap window buffers
 			glfwSwapBuffers(glfw_window);
 		}
 		
 		void Frontend_GLFW::Input_HandleEvents()
 		{
-			//Process GLFW events
+			// Process GLFW events
 			glfwPollEvents();
 		}
 		
 		bool Frontend_GLFW::Input_ShouldClose()
 		{
-			//Check if GLFW has processed an event to close the window
+			// Check if GLFW has processed an event to close the window
 			return glfwWindowShouldClose(glfw_window);
 		}
 	}

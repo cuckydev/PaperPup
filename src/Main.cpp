@@ -11,19 +11,19 @@
 
 #include "Game.h"
 
-//Program arguments
+// Program arguments
 std::vector<std::string> main_arg;
 
-//Entry point
+// Entry point
 int main(int argc, char *argv[])
 {
-	//Copy arguments
+	// Copy arguments
 	char **argvp = argv;
 	main_arg.resize(argc);
 	for (auto &i : main_arg)
 		i = *argvp++;
 	
-	//Run game
+	// Run game
 	PaperPup::Game *game = nullptr;
 	
 	int result = -1;

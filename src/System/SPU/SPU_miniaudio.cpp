@@ -18,15 +18,15 @@ namespace System
 {
 	namespace SPU
 	{
-		//SPU miniaudio class
-		//Constructor and destructor
+		// SPU miniaudio class
+		// Constructor and destructor
 		SPU_miniaudio::SPU_miniaudio()
 		{
-			//Initialize miniaudio context
+			// Initialize miniaudio context
 			if (ma_context_init(nullptr, 0, nullptr, &miniaudio_context) != MA_SUCCESS)
 				throw PaperPup::Exception("[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to initialize miniaudio context");
 			
-			//Create miniaudio device
+			// Create miniaudio device
 			ma_device_config config = ma_device_config_init(ma_device_type_playback);
 			config.playback.pDeviceID = nullptr;
 			config.playback.format = ma_format_s16;
@@ -41,10 +41,10 @@ namespace System
 			if (ma_device_init(&miniaudio_context, &config, &miniaudio_device) != MA_SUCCESS)
 				throw PaperPup::Exception("[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio device");
 			
-			//Setup mixer
+			// Setup mixer
 			mixer.SetOutputFrequency(miniaudio_device.sampleRate);
 			
-			//Create miniaudio mutex and start device
+			// Create miniaudio mutex and start device
 			if (ma_mutex_init(&miniaudio_mutex) != MA_SUCCESS)
 				throw PaperPup::Exception("[System::SPU::SPU_miniaudio::SPU_miniaudio] Failed to create miniaudio mutex");
 			
@@ -53,7 +53,7 @@ namespace System
 		
 		SPU_miniaudio::~SPU_miniaudio()
 		{
-			//Deinitialize miniaudio
+			// Deinitialize miniaudio
 			ma_device_stop(&miniaudio_device);
 			
 			ma_device_uninit(&miniaudio_device);
@@ -61,13 +61,13 @@ namespace System
 			ma_context_uninit(&miniaudio_context);
 		}
 		
-		//Miniaudio data callback
+		// Miniaudio data callback
 		void SPU_miniaudio::DataCallback(ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do)
 		{
 			(void)device;
 			(void)input_buffer;
 			
-			//Run SPU mixer
+			// Run SPU mixer
 			ma_mutex_lock(&miniaudio_mutex);
 			mixer.Mix((int16_t*)output_buffer_void, frames_to_do);
 			ma_mutex_unlock(&miniaudio_mutex);

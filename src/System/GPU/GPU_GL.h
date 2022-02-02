@@ -19,31 +19,31 @@ namespace System
 {
 	namespace GPU
 	{
-		//GL shader class
+		// GL shader class
 		class GL_Shader
 		{
 			private:
-				//Shader objects
+				// Shader objects
 				GLuint program = 0, vertex = 0, fragment = 0;
 				
 			public:
-				//Destructor
+				// Destructor
 				~GL_Shader()
 				{
-					//Destroy shader objects
+					// Destroy shader objects
 					glDeleteProgram(program);
 					glDeleteShader(vertex);
 					glDeleteShader(fragment);
 				}
 				
-				//Shader interface
+				// Shader interface
 				void Compile(const char *src_vert, const char *src_frag)
 				{
-					//Create shader
+					// Create shader
 					GLint shader_status;
 					program = glCreateProgram();
 					
-					//Compile vertex shader
+					// Compile vertex shader
 					vertex = glCreateShader(GL_VERTEX_SHADER);
 					glShaderSource(vertex, 1, &src_vert, nullptr);
 					glCompileShader(vertex);
@@ -56,7 +56,7 @@ namespace System
 						throw PaperPup::Exception("[System::GPU::GL_Shader::Compile] Failed to compile vertex shader:\n" + std::string(buffer));
 					}
 					
-					//Compile fragment shader
+					// Compile fragment shader
 					fragment = glCreateShader(GL_FRAGMENT_SHADER);
 					glShaderSource(fragment, 1, &src_frag, nullptr);
 					glCompileShader(fragment);
@@ -69,13 +69,14 @@ namespace System
 						throw PaperPup::Exception("[System::GPU::GL_Shader::Compile] Failed to compile fragment shader:\n" + std::string(buffer));
 					}
 					
-					//Attach and link
+					// Attach and link
 					glAttachShader(program, vertex);
 					glAttachShader(program, fragment);
 					
 					glBindAttribLocation(program, 0, "v_position");
 					glBindAttribLocation(program, 1, "v_uv");
-					glBindAttribLocation(program, 2, "v_colour");
+					glBindAttribLocation(program, 2, "v_cuv");
+					glBindAttribLocation(program, 3, "v_colour");
 					
 					glLinkProgram(program);
 					
@@ -91,39 +92,39 @@ namespace System
 					glDetachShader(program, fragment);
 				}
 				
-				//Gets and sets
+				// Gets and sets
 				GLuint GetProgram() { return program; }
 		};
 		
-		//GPU GL class
+		// GPU GL class
 		class GPU_GL : public GPU
 		{
 			private:
-				//VRAM
-				uint16_t vram[VRAM_TEXH][VRAM_TEXW]{};
+				// VRAM
+				uint16_t vram[VRAM_TEXH][VRAM_TEXW];
 				GLuint vram_texture;
 				
-				//Shaders
+				// Shaders
 				GL_Shader shader_flat, shader_4, shader_8, shader_16;
 				
 			public:
-				//Constructor and destructor
+				// Constructor and destructor
 				GPU_GL();
 				~GPU_GL() override;
 				
-				//Screen interface
+				// Screen interface
 				void Screen_Set(unsigned int width, unsigned int height) override;
 				
-				//VRAM interface
+				// VRAM interface
 				void VRAM_Fill(uint16_t f, unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
 				void VRAM_Write(const uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
 				void VRAM_Read(uint16_t *data, unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
 				
-				//Render interface
+				// Render interface
 				void Render_Triangle(const Triangle &tri) override;
 				
 			private:
-				//Internal VRAM interface
+				// Internal VRAM interface
 				void VRAM_Upload(unsigned int x, unsigned int y, unsigned int w, unsigned int h);
 		};
 	}

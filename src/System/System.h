@@ -16,22 +16,22 @@
 
 namespace System
 {
-	//System class
+	// System class
 	class System
 	{
 		private:
-			//System components
+			// System components
 			Frontend::Frontend *frontend = nullptr;
 			GPU::GPU *gpu = nullptr;
 			CD::CD *cd = nullptr;
 			SPU::SPU *spu = nullptr;
 			
 		public:
-			//Constructor and destructor
+			// Constructor and destructor
 			System();
 			~System();
 			
-			//Gets and sets
+			// Gets and sets
 			Frontend::Frontend *GetFrontend() { return frontend; }
 			GPU::GPU *GetGPU() { return gpu; }
 			CD::CD *GetCD() { return cd; }

@@ -21,25 +21,25 @@ namespace System
 {
 	namespace SPU
 	{
-		//SPU miniaudio class
+		// SPU miniaudio class
 		class SPU_miniaudio : public SPU
 		{
 			private:
-				//Miniaudio state
+				// Miniaudio state
 				ma_context miniaudio_context;
 				ma_mutex miniaudio_mutex;
 				ma_device miniaudio_device;
 				
 			public:
-				//Constructor and destructor
+				// Constructor and destructor
 				SPU_miniaudio();
 				~SPU_miniaudio() override;
 				
-				//Miniaudio data callback
+				// Miniaudio data callback
 				void DataCallback(ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do);
 				
 			private:
-				//Mutex interface
+				// Mutex interface
 				void Mutex_Lock() { ma_mutex_lock(&miniaudio_mutex); }
 				void Mutex_Unlock() { ma_mutex_unlock(&miniaudio_mutex); }
 		};

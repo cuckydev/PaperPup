@@ -46,7 +46,6 @@ add_executable(PaperPup WIN32
 	"src/System/SPU/SPU.h"
 	"src/System/SPU/Mixer.cpp"
 	"src/System/SPU/Mixer.h"
-	"src/System/SPU/Resampler.h"
 	"src/System/SPU/ADPCM.cpp"
 	"src/System/SPU/ADPCM.h"
 	"src/System/SPU/SPU_miniaudio.cpp"
@@ -57,6 +56,7 @@ add_executable(PaperPup WIN32
 	"lib/glad/glad.h"
 	"lib/glad/KHR/khrplatform.h"
 	"lib/miniaudio.h"
+	"lib/clownresampler.h"
 )
 
 target_include_directories(PaperPup PRIVATE "src")

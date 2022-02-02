@@ -13,8 +13,8 @@ namespace System
 {
 	namespace CD
 	{
-		//CD standard class
-		//Constructor and destructor
+		// CD standard class
+		// Constructor and destructor
 		CD_Standard::CD_Standard()
 		{
 			
@@ -25,7 +25,7 @@ namespace System
 			
 		}
 		
-		//CD interface
+		// CD interface
 		std::shared_ptr<std::ifstream> CD_Standard::FindFile(std::string name)
 		{
 			std::shared_ptr<std::ifstream> stream = std::make_shared<std::ifstream>("iso/" + name, std::ifstream::binary);

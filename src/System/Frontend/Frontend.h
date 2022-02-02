@@ -15,19 +15,19 @@ namespace System
 {
 	namespace Frontend
 	{
-		//Frontend class
+		// Frontend class
 		class Frontend
 		{
 			protected:
-				//Window state
+				// Window state
 				std::string window_title;
 				unsigned int window_width = 0, window_height = 0;
 				
 			public:
-				//Constructor and destructor
+				// Constructor and destructor
 				virtual ~Frontend() {}
 				
-				//Window interface
+				// Window interface
 				virtual void Window_Set(std::string title, unsigned int width, unsigned int height) = 0;
 				
 				std::string Window_GetTitle() { return window_title; }
@@ -36,7 +36,7 @@ namespace System
 				
 				virtual void Window_SwapBuffers() = 0;
 				
-				//Input interface
+				// Input interface
 				virtual void Input_HandleEvents() = 0;
 				virtual bool Input_ShouldClose() = 0;
 		};

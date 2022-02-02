@@ -16,7 +16,7 @@ namespace PaperPup
 {
 	namespace TimImage
 	{
-		//Tim enums
+		// Tim enums
 		enum TimBpp
 		{
 			Index4,
@@ -25,27 +25,27 @@ namespace PaperPup
 			RGBX24
 		};
 		
-		//Tim part structure
+		// Tim part structure
 		struct TimPart
 		{
 			uint16_t *data = nullptr;
 			unsigned int x, y, w, h;
 		};
 		
-		//Tim image class
+		// Tim image class
 		class TimImage
 		{
 			private:
-				//Tim information
+				// Tim information
 				TimBpp bpp;
 				
 				TimPart part_tex, part_clut;
 				
 			public:
-				//Destructor
+				// Destructor
 				~TimImage();
 				
-				//Tim interface
+				// Tim interface
 				bool Read(std::istream &data);
 				
 				TimBpp GetBpp() { return bpp; }

@@ -13,21 +13,21 @@ namespace PaperPup
 {
 	namespace TimImage
 	{
-		//Tim image class
-		//Destructor
+		// Tim image class
+		// Destructor
 		TimImage::~TimImage()
 		{
-			//Delete buffers
+			// Delete buffers
 			if (part_tex.data != nullptr)
 				delete[] part_tex.data;
 			if (part_clut.data != nullptr)
 				delete[] part_clut.data;
 		}
 		
-		//Tim interface
+		// Tim interface
 		bool TimImage::Read(std::istream &stream)
 		{
-			//Free previously contained buffers
+			// Free previously contained buffers
 			if (part_tex.data != nullptr)
 			{
 				delete[] part_tex.data;
@@ -39,29 +39,29 @@ namespace PaperPup
 				part_clut.data = nullptr;
 			}
 			
-			//Read Tim header
+			// Read Tim header
 			uint8_t tim_header[8]{};
 			stream.read((char*)tim_header, 8);
 			
-			if (tim_header[0] != 0x10 || tim_header[1] != 0x00) //Tag and version
+			if (tim_header[0] != 0x10 || tim_header[1] != 0x00) // Tag and version
 				return true;
 			
 			bpp = (TimBpp)(tim_header[4] & 0x03);
 			
-			//Read Tim parts
+			// Read Tim parts
 			auto ReadPart = [&](TimPart &part)
 			{
-				//Read part header
+				// Read part header
 				uint8_t part_header[12]{};
 				stream.read((char*)part_header, 12);
 				
-				//uint32_t part_length = (part_header[0] << 0) | (part_header[1] << 8) | (part_header[2] << 16) | (part_header[3] << 24);
+				// uint32_t part_length = (part_header[0] << 0) | (part_header[1] << 8) | (part_header[2] << 16) | (part_header[3] << 24);
 				part.x = (part_header[4] << 0) | (part_header[5] << 8);
 				part.y = (part_header[6] << 0) | (part_header[7] << 8);
 				part.w = (part_header[8] << 0) | (part_header[9] << 8);
 				part.h = (part_header[10] << 0) | (part_header[11] << 8);
 				
-				//Read part data
+				// Read part data
 				size_t pixels = part.w * part.h;
 				part.data = new uint16_t[pixels]{};
 				stream.read((char*)part.data, pixels << 1);

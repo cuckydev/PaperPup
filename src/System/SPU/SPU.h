@@ -18,21 +18,21 @@ namespace System
 {
 	namespace SPU
 	{
-		//SPU class
+		// SPU class
 		class SPU
 		{
 			protected:
-				//Mixer
+				// Mixer
 				Mixer::Mixer mixer;
 				
 			public:
-				//Constructor and destructor
+				// Constructor and destructor
 				virtual ~SPU() {}
 				
-				//XA interface
+				// XA interface
 				void XA_Load(std::istream &stream)
 				{
-					//Lock stream and call mixer XA play
+					// Lock stream and call mixer XA play
 					Mutex_Lock();
 					mixer.XA_Load(stream);
 					Mutex_Unlock();
@@ -40,28 +40,28 @@ namespace System
 				
 				void XA_Play()
 				{
-					//Lock stream and call mixer XA play
+					// Lock stream and call mixer XA play
 					Mutex_Lock();
 					mixer.XA_Play();
 					Mutex_Unlock();
 				}
 				void XA_SetFilter(uint8_t file, uint8_t channel)
 				{
-					//Lock stream and call mixer XA set filter
+					// Lock stream and call mixer XA set filter
 					Mutex_Lock();
 					mixer.XA_SetFilter(file, channel);
 					Mutex_Unlock();
 				}
 				void XA_Stop()
 				{
-					//Lock stream and call mixer XA stop
+					// Lock stream and call mixer XA stop
 					Mutex_Lock();
 					mixer.XA_Stop();
 					Mutex_Unlock();
 				}
 				
 			private:
-				//Mutex interface
+				// Mutex interface
 				virtual void Mutex_Lock() = 0;
 				virtual void Mutex_Unlock() = 0;
 		};

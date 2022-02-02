@@ -15,15 +15,15 @@ namespace System
 {
 	namespace CD
 	{
-		//CD standard class
+		// CD standard class
 		class CD_Standard : public CD
 		{
 			public:
-				//Constructor and destructor
+				// Constructor and destructor
 				CD_Standard();
 				~CD_Standard() override;
 				
-				//CD interface
+				// CD interface
 				std::shared_ptr<std::ifstream> FindFile(std::string name) override;
 		};
 	}

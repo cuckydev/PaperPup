@@ -18,11 +18,11 @@
 
 namespace PaperPup
 {
-	//Game class
-	//Constructor and destructor
+	// Game class
+	// Constructor and destructor
 	Game::Game()
 	{
-		//Setup system
+		// Setup system
 		system.GetFrontend()->Window_Set("PaperPup", 320 * 3, 240 * 3);
 		system.GetGPU()->Screen_Set(320, 240);
 	}
@@ -32,12 +32,12 @@ namespace PaperPup
 		
 	}
 	
-	//Game interface
+	// Game interface
 	bool Game::Loop()
 	{
-		//Play some music
+		// Play some music
 		{
-			std::shared_ptr<std::ifstream> test_xa = system.GetCD()->FindFile("S9/STAGE9.XA1");
+			std::shared_ptr<std::ifstream> test_xa = system.GetCD()->FindFile("S6/STAGE6.XA1");
 			if (test_xa == nullptr)
 				throw PaperPup::Exception("Failed to open S1/STAGE1.XA1");
 			system.GetSPU()->XA_Load(*test_xa);
@@ -45,7 +45,7 @@ namespace PaperPup
 			system.GetSPU()->XA_Play();
 		}
 		
-		//Read INT file
+		// Read INT file
 		{
 			std::shared_ptr<std::ifstream> test_int = system.GetCD()->FindFile("S1/COMPO01.INT");
 			if (test_int == nullptr)
@@ -75,35 +75,39 @@ namespace PaperPup
 			}
 		}
 		
-		//Run game as long as system is running
+		// Run game as long as system is running
 		while (1)
 		{
-			//Handle frontend events
+			// Handle frontend events
 			system.GetFrontend()->Input_HandleEvents();
 			if (system.GetFrontend()->Input_ShouldClose())
 				break;
 			
-			//Run game
-			System::GPU::Triangle triangle;
-			triangle.vertex[0].x = -1.0f;
-			triangle.vertex[0].y = 1.0f;
-			triangle.vertex[0].u = 60;
-			triangle.vertex[0].v = 0;
-			triangle.vertex[1].x = -1.0f;
-			triangle.vertex[1].y = -1.0f;
-			triangle.vertex[1].u = 60;
-			triangle.vertex[1].v = 185;
-			triangle.vertex[2].x = 1.0f;
-			triangle.vertex[2].y = 1.0f;
-			triangle.vertex[2].u = 252;
-			triangle.vertex[2].v = 0;
-			triangle.tpage = 6;
-			triangle.cpage = System::GPU::VRAM_CPAGEW * 480;
-			triangle.bpp = System::GPU::Bpp::Index4;
+			// Run game
+			System::GPU::Quad quad;
+			quad.vertex[0].x = -1.0f;
+			quad.vertex[0].y = 1.0f;
+			quad.vertex[0].u = 0;
+			quad.vertex[0].v = 0;
+			quad.vertex[1].x = -1.0f;
+			quad.vertex[1].y = -1.0f;
+			quad.vertex[1].u = 0;
+			quad.vertex[1].v = 255;
+			quad.vertex[2].x = 1.0f;
+			quad.vertex[2].y = 1.0f;
+			quad.vertex[2].u = 255;
+			quad.vertex[2].v = 0;
+			quad.vertex[3].x = 1.0f;
+			quad.vertex[3].y = -1.0f;
+			quad.vertex[3].u = 255;
+			quad.vertex[3].v = 255;
+			quad.tpage = 5;
+			quad.cpage = System::GPU::VRAM_CPAGEW * 493;
+			quad.bpp = System::GPU::Bpp::Index4;
 			
-			system.GetGPU()->Render_Triangle(triangle);
+			system.GetGPU()->Render_Quad(quad);
 			
-			//Swap frontend buffers
+			// Swap frontend buffers
 			system.GetFrontend()->Window_SwapBuffers();
 		}
 		return false;

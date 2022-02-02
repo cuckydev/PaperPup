@@ -14,7 +14,7 @@
 
 namespace StreamHelper
 {
-	//Memory stream
+	// Memory stream
 	struct membuf : std::streambuf
 	{
 		membuf(char const* base, size_t size)
