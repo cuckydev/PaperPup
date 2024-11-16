@@ -134,9 +134,15 @@ SourceProcess = function(source, types, enums, classes, functions)
 		local args = table.clone(f.arguments)
 		
 		local has_L_arg = false
-		if #args >= 1 and args[1].type.name == "lua_State *" then
-			has_L_arg = true
-			table.remove(args, 1)
+		if #args >= 1 then
+			local arg_1_type = args[1].type.unqualified_root
+			if arg_1_type.name == "lua_State" then
+				has_L_arg = true
+			end
+			
+			if has_L_arg then
+				table.remove(args, 1)
+			end
 		end
 
 		-- Generate argument bridges
@@ -153,8 +159,8 @@ SourceProcess = function(source, types, enums, classes, functions)
 			-- end
 			read_type = read_type.unqualified_root
 
-			arg_checks ..= `\tluaL_argcheck(L, Script::Lib::Is<{read_type.name}>(L, {i}), {i}, "'{read_type.name}' expected");\n`
-			arg_gets ..= `\tauto {arg.name} = Script::Lib::To<{read_type.name}>(L, {i});\n`
+			arg_checks ..= `\tluaL_argcheck(L, Script::Lib::Is<{read_type.name}>(*L, {i}), {i}, "'{read_type.name}' expected");\n`
+			arg_gets ..= `\tauto {arg.name} = Script::Lib::To<{read_type.name}>(*L, {i});\n`
 		end
 
 		-- First, check argument types
@@ -164,7 +170,7 @@ SourceProcess = function(source, types, enums, classes, functions)
 		local permissions = f.attributes["Permissions"]
 
 		if permissions ~= nil then
-			result ..= `\tScript::Lib::CheckPermissions(L, Script::Context::Permissions::{permissions});\n\n`
+			result ..= `\tScript::Lib::CheckPermissions(*L, Script::Context::Permissions::{permissions});\n\n`
 		end
 
 		-- Then get arguments
@@ -209,7 +215,7 @@ SourceProcess = function(source, types, enums, classes, functions)
 			result ..= "\treturn lua_yield(L, 0);\n"
 		else
 			if has_result then
-				result ..= "\tScript::Lib::Push(L, result);\n"
+				result ..= "\tScript::Lib::Push(*L, result);\n"
 				result ..= "\treturn 1;\n"
 			else
 				result ..= "\treturn 0;\n"

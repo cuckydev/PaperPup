@@ -23,8 +23,13 @@ private:
 public:
 	static Backend &Instance();
 
-	std::string MountMod(std::shared_ptr<DataSource::DataSource> mod_source);
-	void UnmountMod(std::string mod_name);
+	const std::filesystem::path &GetInstallDir() const
+	{
+		return install_dir;
+	}
+
+	// std::string MountMod(std::shared_ptr<DataSource::DataSource> mod_source);
+	// void UnmountMod(std::string mod_name);
 };
 
 }

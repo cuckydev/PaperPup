@@ -26,10 +26,18 @@ add_executable(PaperPup
 
 	"Source/Util/Endian.h"
 	"Source/Util/String.h"
-	
+
+	"Source/Log/Assert.h"
+
+	"Source/Mod/Mod.cpp"
+	"Source/Mod/Mod.h"
+	"Source/Mod/Index.cpp"
+	"Source/Mod/Index.h"
+
 	"Source/Script/Thread.cpp"
 	"Source/Script/Thread.h"
 	"Source/Script/Context.h"
+	"Source/Script/Table.h"
 
 	"Source/Script/Lib.cpp"
 	"Source/Script/Lib.h"
@@ -91,8 +99,8 @@ target_compile_definitions(PaperPup.Config INTERFACE PAPERPUP_VERSION="${PAPERPU
 # Require C++20
 target_compile_features(PaperPup.Config INTERFACE cxx_std_20)
 
-# Use UNICODE for Win32 code
-target_compile_definitions(PaperPup.Config INTERFACE UNICODE)
+# Flags for Win32 code
+target_compile_definitions(PaperPup.Config INTERFACE UNICODE NOMINMAX)
 
 # Enable full warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")

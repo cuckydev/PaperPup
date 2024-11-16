@@ -2,6 +2,7 @@
 
 #include "Script/Context.h"
 
+#include "Log/Assert.h"
 #include "Types/File.h"
 
 #include "lua.h"
@@ -17,10 +18,12 @@ namespace detail
 {
 
 // Lua singleton state
+// This loads all the standard libraries and acts as the main Lua state
 typedef std::unique_ptr<lua_State, decltype(&lua_close)> SingletonState;
-lua_State *Singleton();
+lua_State &Singleton();
 
-lua_State *NewThread();
+// Creates a new sandboxed Lua thread off the singleton state
+lua_State &NewThread();
 
 }
 
@@ -34,7 +37,7 @@ private:
 
 	friend class Thread;
 
-	ThreadRef(lua_State *state, Thread &thread);
+	ThreadRef(lua_State &state, Thread &thread);
 
 	void Register(Thread &thread);
 	void Release();
@@ -42,12 +45,14 @@ private:
 public:
 	~ThreadRef();
 
-	lua_State *GetState()
+	lua_State &GetState()
 	{
-		return thread_state;
+		return *thread_state;
 	}
 };
 
+// Manages a Lua thread, providing a C++ interface and ensuring the security context is maintained
+// A lua state should not be usable without going through this class.
 class Thread
 {
 private:
@@ -57,14 +62,25 @@ private:
 
 public:
 	Thread();
-	Thread(const std::string &source);
+	Thread(const std::string &name, const std::string &source);
 
-	Thread(Types::File &file) : Thread(file.GetString()) {}
+	Thread(const std::string &name, Types::File &file) : Thread(name, file.GetString()) {}
 
 	~Thread();
 
-	lua_State *GetState()
+	bool IsDead() const
 	{
+		return ref == nullptr;
+	}
+
+	const std::shared_ptr<ThreadRef> &GetRef()
+	{
+		return ref;
+	}
+
+	lua_State &GetState()
+	{
+		Log::Assert(!IsDead(), "Cannot use dead thread");
 		return ref->GetState();
 	}
 
@@ -101,7 +117,7 @@ public:
 
 	void Resume();
 
-	static Thread *GetThread(lua_State *L);
+	static Thread *GetThread(lua_State &L);
 };
 
 }

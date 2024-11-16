@@ -2,6 +2,7 @@
 /.vscode
 /out
 /build
+/CMakeSettings.json
 
 /Bin/*
 !/Bin/Data/

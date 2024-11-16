@@ -5,29 +5,6 @@
 namespace PaperPup::VFS::DataSource
 {
 
-class FolderFile : public Types::File
-{
-private:
-	std::unique_ptr<char[]> data;
-
-	Types::Span<char> GetSpan(std::ifstream &stream)
-	{
-		size_t size = static_cast<size_t>(stream.tellg());
-		stream.seekg(0, std::ios::beg);
-
-		data = std::make_unique<char[]>(size);
-		stream.read(data.get(), static_cast<std::streamsize>(size));
-
-		return Types::Span<char>(data.get(), size);
-	}
-
-public:
-	FolderFile(std::ifstream &stream) : File(GetSpan(stream))
-	{
-
-	}
-};
-
 Folder::Folder(const std::filesystem::path &path) : folder_path(path)
 {
 
@@ -58,11 +35,11 @@ Types::File *Folder::Open(const Path &name)
 	}
 
 	// Open file
-	std::ifstream file(folder_path / path, std::ios::binary | std::ios::ate);
+	std::ifstream file(folder_path / path, std::ios::binary);
 	if (!file.is_open())
 		return nullptr;
 
-	return new FolderFile(file);
+	return new Types::StlFile(file);
 }
 
 }

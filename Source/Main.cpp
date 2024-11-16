@@ -33,6 +33,9 @@
 
 #include "Script/Thread.h"
 
+#include "Mod/Mod.h"
+#include "Mod/Index.h"
+
 namespace PaperPup
 {
 
@@ -154,13 +157,19 @@ static void Main()
 	SDL_GL_MakeCurrent(window, context);
 	SDL_GL_SetSwapInterval(1);
 
+	Mod::Index::Instance();
+
+	/*
+
 	std::string lua_source = R"(
 		print(`Thread.Wait(10) returns {Thread.Wait(10)}`)
 	)";
 
-	Script::Thread thread(lua_source);
-	thread.SetContext({ .identity = Script::Context::Identity::UserScript });
+	Script::Thread thread("=Maintest", lua_source);
+	thread.SetContext({ Script::Context::Identity::UserScript });
+
 	thread.Resume();
+	*/
 
 	// auto my_file = std::make_shared<MyFile>("C:/Users/CKDEV/Documents/DuckStation/isos/rapper/Image/S1/COMPO01.INT");
 	// INT::INT int_file(my_file);

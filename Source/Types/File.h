@@ -1,5 +1,8 @@
 #pragma once
 
+#include <filesystem>
+#include <fstream>
+
 #include "Types/Span.h"
 
 #include "Types/Exceptions.h"
@@ -47,6 +50,51 @@ public:
 	std::string GetString() const
 	{
 		return std::string(span.begin(), span.end());
+	}
+};
+
+class StlFile : public File
+{
+private:
+	// This is a bit evil
+	// Since GetSpan is under the File initialization, it's done before `data` is initialized
+	// So we leave it uninitialized (so it isn't wiped later) and also cannot use a unique_ptr
+	char *data;
+
+	Types::Span<char> GetSpan(std::ifstream &stream)
+	{
+		data = nullptr;
+
+		stream.seekg(0, std::ios::end);
+		size_t size = static_cast<size_t>(stream.tellg());
+		stream.seekg(0, std::ios::beg);
+
+		std::unique_ptr<char[]> data_tmp = std::make_unique<char[]>(size);
+
+		stream.read(data_tmp.get(), static_cast<std::streamsize>(size));
+
+		data = data_tmp.release();
+
+		return Types::Span<char>(data, size);
+	}
+
+	Types::Span<char> GetSpan(const std::filesystem::path &path)
+	{
+		data = nullptr;
+
+		std::ifstream stream(path, std::ios::binary);
+		if (!stream)
+			throw RuntimeException("Failed to open file");
+		return GetSpan(stream);
+	}
+
+public:
+	StlFile(std::ifstream &stream) : File(GetSpan(stream)) {}
+	StlFile(const std::filesystem::path &path) : File(GetSpan(path)) {}
+
+	~StlFile()
+	{
+		delete[] data;
 	}
 };
 

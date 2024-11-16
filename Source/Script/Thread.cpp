@@ -29,38 +29,43 @@ static SingletonState NewSingletonState()
 	if (state == nullptr)
 		throw Types::RuntimeException("Failed to create Luau singleton state");
 
-	// Load libraries
+	// Load built-in libraries
+	// Luau doesn't include any libraries that give access to the host system
+	// so no need to uninstall those
 	luaL_openlibs(state.get());
 
 	// Register libraries
 	Leon::Register(state.get());
 
 	// Sandbox state
+	// This makes all the globals we just loaded read-only
 	luaL_sandbox(state.get());
+
 	return state;
 }
 
-lua_State *Singleton()
+lua_State &Singleton()
 {
 	static SingletonState singleton(NewSingletonState());
-	return singleton.get();
+	return *(singleton.get());
 }
 
-lua_State *NewThread()
+lua_State &NewThread()
 {
-	lua_State *singleton = detail::Singleton();
+	lua_State &singleton = detail::Singleton();
 
 	// Create new thread
-	lua_State *state = lua_newthread(singleton);
+	lua_State *state = lua_newthread(&singleton);
 	if (state == nullptr)
-		luaL_error(singleton, "Failed to create new Luau thread");
+		throw Types::RuntimeException("Failed to create new Luau thread");
 
-	lua_pop(singleton, 1);
+	lua_pop(&singleton, 1);
 
 	// Sandbox thread
+	// This replaces the global table one that can't modify the singleton globals
 	luaL_sandboxthread(state);
 
-	return state;
+	return *state;
 }
 
 }
@@ -68,16 +73,12 @@ lua_State *NewThread()
 // Thread constructor
 Thread::Thread()
 {
-	lua_State *singleton = detail::Singleton();
-
-	lua_State *state = detail::NewThread();
+	lua_State &state = detail::NewThread();
 	ref.reset(new ThreadRef(state, *this));
 }
 
-Thread::Thread(const std::string &source) : Thread()
+Thread::Thread(const std::string &name, const std::string &source) : Thread()
 {
-	lua_State *singleton = detail::Singleton();
-	
 	// Compile script to bytecode and load it
 	static Luau::CompileOptions copt;
 	copt.optimizationLevel = 2;
@@ -85,24 +86,27 @@ Thread::Thread(const std::string &source) : Thread()
 
 	std::string bytecode = Luau::compile(source, copt);
 
-	lua_State *state = ref->GetState();
-	int result = luau_load(state, "Thread", bytecode.data(), bytecode.size(), 0);
+	lua_State &state = ref->GetState();
+	int result = luau_load(&state, name.c_str(), bytecode.data(), bytecode.size(), 0);
 	if (result != LUA_OK)
-		luaL_error(singleton, lua_tostring(state, -1));
+		throw Types::RuntimeException(lua_tostring(&state, -1));
 }
 
 Thread::~Thread()
 {
-	ref->Release();
+	if (ref != nullptr)
+		ref->Release();
 }
 
 void Thread::Resume()
 {
-	lua_State *singleton = detail::Singleton();
+	Log::Assert(!IsDead(), "Cannot use dead thread");
+
+	lua_State &singleton = detail::Singleton();
 
 	// Resume thread and handle errors
-	lua_State *state = ref->GetState();
-	int result = lua_resume(state, singleton, 0);
+	lua_State &state = ref->GetState();
+	int result = lua_resume(&state, &singleton, 0);
 
 	switch (result)
 	{
@@ -110,33 +114,37 @@ void Thread::Resume()
 		case LUA_YIELD:
 			break;
 		case LUA_ERRRUN:
-			luaL_error(singleton, lua_tostring(state, -1));
+			throw Types::RuntimeException(lua_tostring(&state, -1));
 			break;
 		case LUA_ERRMEM:
-			luaL_error(singleton, "Memory allocation error");
+			throw Types::RuntimeException("Memory allocation error");
 			break;
 		case LUA_ERRERR:
-			luaL_error(singleton, "Error in message handler");
+			throw Types::RuntimeException("Error in message handler");
 			break;
 		case LUA_BREAK:
-			luaL_error(singleton, "Unhandled breakpoint");
+			throw Types::RuntimeException("Unhandled breakpoint");
 			break;
 		default:
-			luaL_error(singleton, "Unknown error");
+			throw Types::RuntimeException("Unknown error");
 			break;
 	}
 }
 
-ThreadRef::ThreadRef(lua_State *state, Thread &thread)
+// Thread reference and registration
+// We need to be able to get the C++ Thread class from the Lua thread state
+// but also have light references to the Lua thread state with their own
+// lifetime, and ensuring the Lua thread state is not garbage collected
+ThreadRef::ThreadRef(lua_State &state, Thread &thread)
 {
-	lua_State *singleton = detail::Singleton();
+	lua_State &singleton = detail::Singleton();
 
-	thread_state = state;
+	thread_state = &state;
 
 	lua_pushthread(thread_state);
-	lua_xmove(thread_state, singleton, 1);
-	thread_ref = lua_ref(singleton, -1);
-	lua_pop(singleton, 1);
+	lua_xmove(thread_state, &singleton, 1);
+	thread_ref = lua_ref(&singleton, -1);
+	lua_pop(&singleton, 1);
 
 	lua_setthreaddata(thread_state, &thread);
 }
@@ -145,7 +153,7 @@ ThreadRef::~ThreadRef()
 {
 	Release();
 
-	lua_unref(detail::Singleton(), thread_ref);
+	lua_unref(&(detail::Singleton()), thread_ref);
 }
 
 void ThreadRef::Register(Thread &thread)
@@ -159,9 +167,9 @@ void ThreadRef::Release()
 		lua_setthreaddata(thread_state, nullptr);
 }
 
-Thread *Thread::GetThread(lua_State *L)
+Thread *Thread::GetThread(lua_State &L)
 {
-	Thread *thread = static_cast<Thread *>(lua_getthreaddata(L));
+	Thread *thread = static_cast<Thread *>(lua_getthreaddata(&L));
 	return thread;
 }
 
