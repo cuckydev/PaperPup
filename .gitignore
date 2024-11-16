@@ -2,3 +2,7 @@
 /.vscode
 /out
 /build
+
+/Bin/*
+!/Bin/Data/
+!/Bin/Mods/

@@ -1,0 +1,9 @@
+[submodule "External/luau"]
+	path = External/luau
+	url = https://github.com/luau-lang/luau
+[submodule "External/Leon"]
+	path = External/Leon
+	url = https://github.com/cuckydev/Leon
+[submodule "External/SDL"]
+	path = External/SDL
+	url = https://github.com/libsdl-org/SDL
